@@ -1,0 +1,122 @@
+:root {
+  --green-dark:   #2d5a27;
+  --green-mid:    #3a7233;
+  --green-light:  #4d9640;
+  --green-pale:   #eaf3e8;
+  --text-muted:   #6b7c69;
+  --border-color: #dde8db;
+  --sidebar-w:    240px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  /*background: #f2f5f1;*/
+  background: var(--green-light);
+  color: #1c2b1a;
+}
+
+h1, h2, h5, .topbar-title {
+  font-family: 'Syne', sans-serif;
+}
+
+#app-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+#sidebar {
+  width: var(--sidebar-w);
+  background: #fff;
+  border-right: 1px solid var(--border-color);
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 1040;
+  transition: transform .3s ease;
+}
+
+#sidebar.collapsed {
+  transform: translateX(calc(-1 * var(--sidebar-w)));
+}
+
+#main-content {
+  margin-left: var(--sidebar-w);
+  transition: margin-left .3s ease;
+}
+
+#main-content.expanded {
+  margin-left: 0;
+}
+
+#sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1030;
+  backdrop-filter: blur(2px);
+}
+
+#sidebar-overlay.show {
+  display: block;
+}
+
+
+.sidebar-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--green-pale);
+  color: var(--green-dark);
+}
+
+.nav-item-link {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.nav-item-link:hover, .nav-item-link.active {
+  background: var(--green-pale) !important;
+  color: var(--green-dark) !important;
+}
+
+.nav-item-link.active {
+  background: var(--green-dark) !important;
+  color: #fff !important;
+}
+
+.topbar-icon-btn {
+  width: 36px; height: 36px;
+  background: var(--green-pale);
+  cursor: pointer;
+}
+
+#welcome-banner {
+  background: linear-gradient(115deg, var(--green-dark) 0%, var(--green-mid) 55%, var(--green-light) 100%);
+}
+
+.banner-img-placeholder {
+  width: 120px; height: 90px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.chart-placeholder {
+  background: #f8faf7;
+  border: 2px dashed var(--border-color);
+}
+
+.promo-item:hover {
+  background: #f8faf7;
+}
+
+@media (max-width: 991.98px) {
+  #sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
+  #sidebar.open { transform: translateX(0); }
+  #main-content { margin-left: 0 !important; }
+}
+
+#promos-table-body td {
+    vertical-align: middle;
+}
+.bg-info {
+    background-color: #a8d5cc !important; 
+}
