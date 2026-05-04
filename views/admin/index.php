@@ -1,6 +1,10 @@
 <?php
+require_once __DIR__.'/../../helpers/session.php';
+iniciarSesionSegura();
 
+if(isset($_SESSION['Dashboard'])){
 
+}
 ?>
 
 <!doctype html>
@@ -65,34 +69,66 @@
         </section>
 
         <main class="p-4">
-          <div class="row g-3 mb-4">
+          <div class="row g-3 mb-4 border p-3 rounded-3">
+            <!--TODO:Definir que fecha es hoy xdd-->
+            <h3 class = ''>Resumen de hoy</h3>
             <div class="col-6 col-md-3">
               <div class="bg-white p-3 border rounded-3 h-100">
-                <div class="text-muted mb-2">Ventas de hoy</div>
+                <div class="text-muted mb-2">Ventas</div>
                 <div id = 'today-revenue-container'class="h2 mb-0">...</div>
               </div>
             </div>
             <div class="col-6 col-md-3">
               <div class="bg-white p-3 border rounded-3 h-100">
-                <div class="text-muted mb-2">Pedidos de hoy</div>
+                <div class="text-muted mb-2">Total Pedidos</div>
                 <div id = 'today-order-container' class="h2 mb-0">...</div>
               </div>
             </div>
             <div class="col-6 col-md-3">
               <div class="bg-white p-3 border rounded-3 h-100">
-                <div class="text-muted mb-2">Ordenes Activas</div>
+                <div class="text-muted mb-2">Pedidos Completados</div>
                 <div id = 'today-order-active'class="h2 mb-0">...</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="bg-white p-3 border rounded-3 h-100">
+                <div class="text-muted mb-2">Pedidos Pendientes</div>
+                <div id = 'today-order-inactive'class="h2 mb-0">...</div>
               </div>
             </div>
           </div>
 
-          <div class="row mb-4">
-            <div class="col-12">
-              <div class="bg white border rounede-3 p-3">
-                <h5 class="mb-3">Historico de Ventas</h5>
-                <div class="chart-placeholder d-flex align-items-center justify-content-between text-muted rounded-3" style="height: 250px;background-color: #fff; border: 1px dashed #ccc;">
-                  <canvas id="miChart" style = 'height: 200px; width: 400px;'></canvas>
-                  <canvas id="miChart" style = 'height: 200px; width: 400px;'></canvas>
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-lg-6">
+              <div class="bg-white border rounded-3 h-100">
+                <div class="p-3 border-bottom d-flex justify-content-between">
+                  <h4 class="mb-0">Histórico de Ventas</h4>
+                  <input type="date">
+                </div>
+                <div class="p-3 d-flex align-items-center justify-content-center" >
+                  <canvas id="miChart"style="min-height: 280px;"></canvas>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-12 col-lg-6">
+              <div class="bg-white border rounded-3 h-100">
+                <div class="p-3 border-bottom d-flex justify-content-between">
+                  <h4 class="mb-0">
+                    <select>
+                      <option selected>Categorias</option>
+                      <option >Productos</option>
+                    </select>
+                    más vendidas/os
+                  </h4>
+                  <select>
+                    <option selected>Hoy</option>
+                    <option>Ultima semana</option>
+                    <option>Ultima mes</option>
+                  </select>
+                </div>
+                <div class="p-3 d-flex align-items-center justify-content-center">
+                  <canvas id="miChart2"style="max-height: 480px; max-width: 380px;"></canvas>
                 </div>
               </div>
             </div>
@@ -140,6 +176,6 @@
       integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
       crossorigin="anonymous"
     ></script>
-  <script type="module" src="../../controllers/admin/dashboardcontroller.js"></script>  
+  <script type="module" src="../../controllers/admin/DashboardController.js"></script>  
 </body>
 </html>

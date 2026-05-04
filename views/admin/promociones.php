@@ -179,6 +179,6 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="../../controllers/admin/promocionescontroller.js"></script>
+    <script type="module" src="../../controllers/admin/PromocionesController.js"></script>
 </body>
 </html>

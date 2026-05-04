@@ -2,9 +2,10 @@ import { MenuModel } from '../../models/Product.js';
 import { MainController } from './maincontroller.js';
 const MenuController = {
     productos: [],
-    init: () => {
-        MenuController.productos = MenuModel.obtenerProductos();
-        MenuController.render();
+    init: async () => {
+        MenuController.productos = await MenuModel.obtenerProductos();
+        console.log(MenuController.productos);
+        MenuController.render(MenuController.productos);
 
         document.getElementById('input-search-menu')?.addEventListener('input', MenuController.render);
         document.getElementById('filter-category')?.addEventListener('change', MenuController.render);
@@ -31,25 +32,25 @@ const MenuController = {
         });
     },
 
-    render: () => {
+    render: (productos) => {
         const query = document.getElementById('input-search-menu').value.toLowerCase();
         const cat = document.getElementById('filter-category').value;
         const tbody = document.getElementById('menu-table-body');
 
-        const filtrados = MenuController.productos.filter(p => {
+        /* const filtrados = .filter(p => {
             const coincide = p.nombre.toLowerCase().includes(query) || p.id.includes(query);
             const coincideCat = cat === 'Todas' || p.categoria === cat;
             return coincide && coincideCat;
-        });
-
-        tbody.innerHTML = filtrados.map(p => `
+        }); */
+        //TODO: Agregar el sistema CRUD con las funciones puestas ahi
+        tbody.innerHTML = productos.map(p => `
             <tr>
                 <td class="fw-bold p-3">${p.id}</td>
-                <td><img src="${p.img}" class="rounded border" style="width: 60px; height: 45px; object-fit: cover;"></td>
-                <td class="text-start fw-bold">${p.nombre}</td>
-                <td><span class="badge bg-light text-dark border">${p.categoria}</span></td>
-                <td class="fw-bold text-success">$${p.precio.toFixed(2)}</td>
-                <td><span class="badge ${p.estado === 'Disponible' ? 'bg-success' : 'bg-danger'} rounded-pill px-3 py-2">${p.estado}</span></td>
+                <td><img src="${p.url_image}" class="rounded border" style="width: 60px; height: 45px; object-fit: cover;"></td>
+                <td class="text-start fw-bold">${p.name}</td>
+                <td><span class="badge bg-light text-dark border">${p.category.name}</span></td>
+                <td class="fw-bold text-success">$${parseInt(p.price).toFixed(2)}</td>
+                <td><span class="badge ${p.is_active ? 'bg-success' : 'bg-danger'} rounded-pill px-3 py-2">${p.is_active ? 'Activo' : 'Inactivo'}</span></td>
                 <td>
                     <button class="btn btn-sm btn-outline-dark me-1" onclick="MenuController.abrirEditar('${p.id}')" title="Editar">
                         <i class="fa-solid fa-pen"></i>
@@ -63,16 +64,16 @@ const MenuController = {
     },
 
     abrirEditar: (id) => {
-        const p = MenuController.productos.find(x => x.id === id);
+        const p = MenuController.productos.find(x => x.id == id);
         if (!p) return;
 
         document.getElementById('modal_prod_id').value = p.id;
-        document.getElementById('modal_prod_nombre').value = p.nombre;
-        document.getElementById('modal_prod_desc').value = p.descripcion ?? '';
-        document.getElementById('modal_prod_cat').value = p.categoria;
-        document.getElementById('modal_prod_precio').value = p.precio;
+        document.getElementById('modal_prod_nombre').value = p.name;
+        document.getElementById('modal_prod_desc').value = p.description ?? '';
+        document.getElementById('modal_prod_cat').value = p.category.name;
+        document.getElementById('modal_prod_precio').value = p.price;
         document.getElementById('modal_prod_img').src = p.img;
-        document.getElementById('modal_prod_cat_preview').textContent = p.categoria;
+        document.getElementById('modal_prod_cat_preview').textContent = p.category.name;
 
         //para los botones de estado
         if (p.estado === 'Disponible') document.getElementById('prod_estado_disponible').checked = true;

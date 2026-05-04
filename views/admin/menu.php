@@ -1,7 +1,7 @@
 <?php
-if(!validate_jwt()){
+/* if(!validate_jwt()){
     header('Location: 404.php');
-}
+} */
 ?>
 
 <!DOCTYPE html>
@@ -179,6 +179,6 @@ if(!validate_jwt()){
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="../../controllers/admin/menucontroller.js"></script>
+    <script type="module" src="../../controllers/admin/MenuController.js"></script>
 </body>
 </html>

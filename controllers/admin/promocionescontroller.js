@@ -1,10 +1,12 @@
 import { PromocionesModel } from '../../models/Promocion.js';
 import { MainController } from './maincontroller.js';
+
 const PromocionesController = {
     datosPromos: [],
-    init:()=>{
+    init:async ()=>{
         //le pide los datos al modelo
-        PromocionesController.datosPromos = PromocionesModel.obtenerPromociones();
+        PromocionesController.datosPromos = await PromocionesModel.obtenerPromociones();
+        console.log(PromocionesController.datosPromos);
         //para renderizar la tabla
         PromocionesController.renderizarTabla();
         document.getElementById('input-search-promos')?.addEventListener('input', PromocionesController.renderizarTabla);
@@ -26,21 +28,21 @@ const PromocionesController = {
         const filtroEstado = document.getElementById('filter-promo-status').value;
 
         const filtradas = PromocionesController.datosPromos.filter(p => {
-            const coincideTexto = p.nombre.toLowerCase().includes(busqueda) || p.id.includes(busqueda);
-            const coincideEstado = filtroEstado === 'Todas' || p.estado === filtroEstado;
+            const coincideTexto = p.name.toLowerCase().includes(busqueda) || p.id.includes(busqueda);
+            const coincideEstado = filtroEstado === 'Todas' || p.is_active === filtroEstado;
             return coincideTexto && coincideEstado;
         });
 
         tbody.innerHTML = filtradas.map(p => {
-            let colorBadge = p.estado === 'Activa' ? 'bg-success' : (p.estado === 'Programada' ? 'bg-info text-dark' : 'bg-secondary');
+            let colorBadge = p.is_active ? 'bg-success' : 'bg-secondary';
 
             return `
                 <tr>
                     <td class="fw-bold p-3">${p.id}</td>
-                    <td><img src="${p.img}" class="rounded border" style="width: 60px; height: 45px; object-fit: cover;"></td>
-                    <td class="fw-bold text-start">${p.nombre}</td>
-                    <td class="text-start text-muted" style="max-width: 200px;">${p.descripcion}</td>
-                    <td><small>Del <b>${p.desde}</b><br>Al <b>${p.hasta}</b></small></td>
+                    <td><img src="${p.image_url}" class="rounded border" style="width: 60px; height: 45px; object-fit: cover;"></td>
+                    <td class="fw-bold text-start">${p.name}</td>
+                    <td class="text-start text-muted" style="max-width: 200px;">${p.type}</td>
+                    <td><small>Del <b>${p.start_date}</b><br>Al <b>${p.end_date}</b></small></td>
                     <td><span class="badge ${colorBadge} rounded-pill px-3 py-2">${p.estado}</span></td>
                     <td>
                         <button class="btn btn-sm btn-outline-dark me-1" onclick="PromocionesController.editar('${p.id}')" title="Editar">
@@ -70,11 +72,11 @@ const PromocionesController = {
         if (!p) return;
 
         document.getElementById('modal_promo_id').value = p.id;
-        document.getElementById('modal_promo_nombre').value = p.nombre;
-        document.getElementById('modal_promo_desc').value = p.descripcion;
-        document.getElementById('modal_promo_desde').value = p.desde;
-        document.getElementById('modal_promo_hasta').value = p.hasta;
-        document.getElementById('modal_promo_img').src = p.img;
+        document.getElementById('modal_promo_nombre').value = p.name;
+        document.getElementById('modal_promo_desc').value = p.type;
+        document.getElementById('modal_promo_desde').value = p.start_date;
+        document.getElementById('modal_promo_hasta').value = p.end_date;
+        document.getElementById('modal_promo_img').src = p.image_url;
 
         // el estado 
         if(p.estado === 'Activa') document.getElementById('estado_activa').checked = true;

@@ -1,7 +1,7 @@
 //datos estaticos 
 export const PromocionesModel ={
-    obtenerPromociones: () =>{
-        return [
+    obtenerPromocionesActivas: async () =>{
+        /* return [
             {
                 id:'1',
                 nombre:'2x1 en Caramelo King',
@@ -20,6 +20,14 @@ export const PromocionesModel ={
                 estado:'Programada',
                 img:'link de claudinary (despues veo eso)'
             }
-        ]
+        ] */
+       const peticion = await fetch('http://localhost:8000/api/promociones/active');
+       const promociones = await peticion.json();
+       return promociones;
     },
+    obtenerPromociones: async ()=>{
+        const peticion = await fetch('http://localhost:8000/api/promociones');
+        const promociones = peticion.json();
+        return promociones;
+    }
 }
