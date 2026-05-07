@@ -1,4 +1,3 @@
-<!--Esto va a ser .php en un futuro xd-->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -14,8 +13,8 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
     />
-    <link rel="stylesheet" href="./styles/style.css" />
-    <link rel="icon" href="./img/logo.png" type="image/png" />
+    <link rel="stylesheet" href="./css/index.css" />
+    <link rel="icon" href="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778105791/logo_ovjyyk.png" type="image/png" />
     <title>Xilotepec Cofee Shop</title>
   </head>
   <body>
@@ -23,7 +22,7 @@
       <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
           <a class="navbar-brand" href="#">
-            <img src="./img/Logo xilo color.jpg" alt="" />
+            <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778110890/Logo_xilo_color_tpfzbj.jpg" alt=" logo con fondo " />
           </a>
           <button
             class="navbar-toggler"
@@ -56,7 +55,7 @@
               <a
                 class="btn btn-light"
                 aria-disabled="true"
-                href="./pages/login.html"
+                href="login.php"
                 >Iniciar sesión</a
               >
             </div>
@@ -68,13 +67,13 @@
     <main>
       <section class="banner">
         <a class="btn-conocenos" href="#conocenos">
-          <img src="./img/Logo xilo color.jpg" alt="" />
+          <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778110890/Logo_xilo_color_tpfzbj.jpg" alt=" logo con fondo " />
         </a>
       </section>
       <section class="contenedor">
         <h2 id="conocenos">¡Conocenos!</h2>
         <article class="conocenos">
-          <img id="logo-conocenos" src="./img/Logo xilo color.jpg" alt="" />
+          <img id="logo-conocenos" src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778110890/Logo_xilo_color_tpfzbj.jpg" alt=" logo con fondo " />
           <p>
             XILOTEPEC no representa solo una marca; para nosotros es un puente
             entre el pasado y el presente. Desde la época precolombina, el
@@ -88,37 +87,37 @@
 
         <div class="bento">
           <article class="box" style="grid-area: box-1">
-            <img src="./img/1.jpg" alt="" />
+            <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778111052/1_jueyez.jpg" alt="" />
           </article>
           <article class="box" style="grid-area: box-2">
-            <img src="./img/2.jpg" alt="" />
+            <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778111054/2_dtdu8o.jpg" alt="" />
           </article>
           <article class="box" style="grid-area: box-3">
-            <img src="./img/3.jpg" alt="" />
+            <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778111056/3_adbzxa.jpg" alt="" />
           </article>
           <article class="box" style="grid-area: box-4">
-            <img src="./img/4.jpg" alt="" />
+            <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778111058/4_qkslve.jpg" alt="" />
           </article>
           <article class="box" style="grid-area: box-5">
-            <img src="./img/5.jpg" alt="" />
+            <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778111043/5_hguooe.jpg" alt="" />
           </article>
         </div>
         <h2 id="promociones">Conoce nuestras promociones</h2>
         <div class="bento2">
           <article class="box" style="grid-area: box-1">
-            <img src="./img/6.jpg" alt="" />
+            <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778111042/6_xacnpb.jpg" alt="" />
           </article>
           <article class="box" style="grid-area: box-2">
-            <img src="./img/7.jpg" alt="" />
+            <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778111046/7_k7mvmi.jpg" alt="" />
           </article>
           <article class="box" style="grid-area: box-3">
-            <img src="./img/8.jpg" alt="" />
+            <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778111047/8_e6plgx.jpg" alt="" />
           </article>
           <article class="box" style="grid-area: box-4">
-            <img src="./img/9.jpg" alt="" />
+            <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778111049/9_wkf8gj.jpg" alt="" />
           </article>
           <article class="box" style="grid-area: box-5">
-            <img src="./img/10.jpg" alt="" />
+            <img src="https://res.cloudinary.com/dhotqeo6c/image/upload/v1778111071/10_qfocbk.jpg" alt="" />
           </article>
         </div>
       </section>
@@ -174,7 +173,7 @@
         </div>
         <hr />
         <div class="d-sm-flex justify-content-between py-1">
-          <p>2025 © Trabajo Universitario</p>
+          <p>2026 © Trabajo Universitario</p>
         </div>
       </div>
     </footer>
