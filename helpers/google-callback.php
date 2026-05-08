@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__.'/../sessionHandler.php';
+require_once __DIR__.'/../helpers/sessionHandler.php';
 AppSessionHandler::iniciarSesionSegura();
 
 
@@ -63,10 +63,10 @@ if (!isset($_GET['code'])) {
             );
 
         if($_SESSION['user']['role'] == 'admin'){
-            header('Location: /admin/views/admin/index.php');
+            header('Location: ../views/admin/index.php');
             exit;
         }
-        header('Location: /admin/views/cliente/menu.php');
+        header('Location: ../views/cliente/menu.php');
         exit;
     } else {
         echo "Error en login con Google: " . ($data['mensaje'] ?? 'Respuesta inválida');

@@ -10,7 +10,7 @@ if (isset($_GET['logout'])) {
         setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
     }
     setcookie('jwt_token', '', time() - 42000, '/');
-    header('Location: /admin/public/login.php');
+    header('Location: ../public/login.php');
     exit;
 }
 
@@ -52,10 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 false
             );
             if($_SESSION['user']['role'] == 'admin'){
-                header('Location: /admin/views/admin/index.php');
+                header('Location: ../views/admin/index.php');
                 exit;
             }
-            header('Location: /admin/views/cliente/menu.php');
+            header('Location: ../views/cliente/menu.php');
             exit;
         } else {
             $error = $data['message'] ?? 'Credenciales inválidas';
