@@ -1,3 +1,11 @@
+<?php
+require __DIR__.'/../../helpers/AuthMiddleware.php';
+
+if(!isUserAdmin() || !validate_jwt()){
+  header('Location: /admin/errors/401.php');
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,8 +27,8 @@
                     <i class="fa-solid fa-user"></i>
                 </div>
                 <div>
-                    <div class="fw-bold">Usuario nombre</div>
-                    <div class="text-muted" style="font-size: 12px;">Administrador</div>
+                    <div class="fw-bold"><?= $_SESSION['user']['name'] ?></div>
+                    <div class="text-muted" style="font-size: 12px;">Administrador, tiempo restante: <span id="countdown"></span></div>
                 </div>
             </div>
             <nav class="sidebar-nav p-3 flex-grow-1">
@@ -59,18 +67,17 @@
                     <div id="alert-container"></div>
                     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
                         <!--el buscador-->
-                        <div class="position-relative" style="width: 300px;">
+                        <div class="position-relative" style="width: 325px;">
                             <i class="fa-solid fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                            <input type="text" id="input-search-pedidos" class="form-control ps-5 rounded-pill" placeholder="Buscar por Id o cliente">
+                            <input type="text" id="input-search-pedidos" class="form-control ps-5 rounded-pill" placeholder="Buscar por Id o nombre de Cliente">
                         </div>
                         <!--los fiiltros-->
                         <div class="d-flex gap-3">
                             <select id="filter-pedido-status" class="form-select rounded-pill bg-light border-0" style="width: 160px;">
                                 <option value="Todos">Todos</option>
-                                <option value="Nuevo">Nuevos</option>
-                                <option value="En preparación">En preparación</option>
-                                <option value="Listo">Listos</option>
-                                <option value="Entregado">Entregados</option>
+                                <option value="cancelada">Cancelados</option>
+                                <option value="pendiente">Pendientes</option>
+                                <option value="completada">Completados</option>
                             </select>
                         </div>
                     </div>
@@ -87,7 +94,15 @@
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="pedidos-table-body"></tbody>
+                            <tbody id="pedidos-table-body">
+                                <tr>
+                                    <td id='table-head-status' colspan="100%" class="text-center">
+                                        <div class="spinner-border text-success m-4" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>   
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -142,10 +157,6 @@
                                         <label for="ped_estado_entregado" class="btn btn-outline-success btn-sm">Entregado</label>
                                     </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="#" class="form-label fw-bold small">Indicaciones (comentario del cliente):</label>
-                                    <textarea name="#" id="modal_ped_instrucciones" class="form-control" rows="3" placeholder="El cliente no ha dejado indicaciones de entrega"></textarea>
-                                </div>
                             </div>
 
                             <div class="col-12 col-lg-4">
@@ -179,5 +190,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="../../controllers/admin/PedidosController.js"></script>
+    <script>
+      function updateCountdown() {
+        const now = Math.floor(Date.now() / 1000);
+        const expiresAt = <?= $_SESSION['expires_at'] ?>;
+        const remaining = expiresAt - now;
+        if (remaining <= 0) {
+          document.getElementById('countdown').textContent = 'Expirado';
+          return;
+        }
+        const hours = Math.floor(remaining / 3600);
+        const minutes = Math.floor((remaining % 3600) / 60);
+        const seconds = remaining % 60;
+        document.getElementById('countdown').textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+      setInterval(updateCountdown, 1000);
+      updateCountdown();
+    </script>
 </body>
 </html>

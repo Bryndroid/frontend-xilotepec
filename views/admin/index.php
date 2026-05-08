@@ -1,9 +1,8 @@
 <?php
-require_once __DIR__.'/../../helpers/session.php';
-iniciarSesionSegura();
+require __DIR__.'/../../helpers/AuthMiddleware.php';
 
-if(isset($_SESSION['Dashboard'])){
-
+if(!isUserAdmin() || !validate_jwt()){
+  header('Location: /admin/errors/401.php');
 }
 ?>
 
@@ -28,10 +27,13 @@ if(isset($_SESSION['Dashboard'])){
               <i class="fa-solid fa-user"></i>
             </div>
             <div>
-              <div class="fw-bold">Usuario nombre</div>
+              <div class="fw-bold"><?=  $_SESSION['user']['name'] ?></div>
               <div class="text-muted" style="font-size: 12px">
-                Administrador
+                Administrador, tiempo restante: <span id="countdown"></span>
               </div>
+              <button class = 'btn-primary' id = 'btn-close-session'>
+                  Cerrar sesión.
+              </button>
             </div>
           </div> 
             <nav class="sidebar-nav p-3 flex-grow-1">
@@ -64,7 +66,7 @@ if(isset($_SESSION['Dashboard'])){
         </header>
 
         <section id="welcome-banner" class="mx-4 mt-3 p-4 rounded-3 text-white">
-          <h1 class="mb-1">Bienvenido, usuario Administrador</h1>
+          <h1 class="mb-1">Bienvenido, usuario <?=  $_SESSION['user']['name'] ?></h1>
           <p class="mb-0" id="today-date">...</p>
         </section>
 
@@ -75,25 +77,63 @@ if(isset($_SESSION['Dashboard'])){
             <div class="col-6 col-md-3">
               <div class="bg-white p-3 border rounded-3 h-100">
                 <div class="text-muted mb-2">Ventas</div>
-                <div id = 'today-revenue-container'class="h2 mb-0">...</div>
+                <div id="today-revenue-container" class="h2 mb-0">
+                  <div class="placeholder-glow">
+                      <span 
+                          class="placeholder col-4 d-inline-block bg-info"
+                          style="height: 28px;"
+                      ></span>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="col-6 col-md-3">
               <div class="bg-white p-3 border rounded-3 h-100">
                 <div class="text-muted mb-2">Total Pedidos</div>
-                <div id = 'today-order-container' class="h2 mb-0">...</div>
+                <div id = 'today-order-container' class="h2 mb-0">
+                  <div class="placeholder-glow">
+                      <span 
+                          class="placeholder col-4 d-inline-block bg-info"
+                          style="height: 28px;"
+                      ></span>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="col-6 col-md-3">
               <div class="bg-white p-3 border rounded-3 h-100">
                 <div class="text-muted mb-2">Pedidos Completados</div>
-                <div id = 'today-order-active'class="h2 mb-0">...</div>
+                <div id = 'today-order-active'class="h2 mb-0">
+                  <div class="placeholder-glow">
+                      <span 
+                          class="placeholder col-4 d-inline-block bg-info"
+                          style="height: 28px;"
+                      ></span>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="col-6 col-md-3">
               <div class="bg-white p-3 border rounded-3 h-100">
                 <div class="text-muted mb-2">Pedidos Pendientes</div>
-                <div id = 'today-order-inactive'class="h2 mb-0">...</div>
+                <div id = 'today-order-inactive'class="h2 mb-0"><div class="placeholder-glow">
+                      <span 
+                          class="placeholder col-4 d-inline-block bg-info"
+                          style="height: 28px;"
+                      ></span>
+                  </div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenedor principal con posición relativa para que el overlay se ajuste a él -->
+        <div id="container-to-blur" class="position-relative">
+          
+          
+          <div id="loading-overlay" class="loading-overlay d-none">
+            <div class="text-center">
+              <div class="spinner-border text-primary" role="status" >
+                <span class="visually-hidden">Cargando...</span>
               </div>
             </div>
           </div>
@@ -103,38 +143,43 @@ if(isset($_SESSION['Dashboard'])){
               <div class="bg-white border rounded-3 h-100">
                 <div class="p-3 border-bottom d-flex justify-content-between">
                   <h4 class="mb-0">Histórico de Ventas</h4>
-                  <input type="date">
+                  <select id='select-date-orders' class="form-select form-select-sm w-auto">
+                    <option selected value='today'>Hoy</option>
+                    <option value='last_week'>Ultima semana</option>
+                    <option value='last_month'>Este mes</option>
+                    <option value='year'>Este año</option>
+                  </select>
                 </div>
-                <div class="p-3 d-flex align-items-center justify-content-center" >
-                  <canvas id="miChart"style="min-height: 280px;"></canvas>
+                <div class="p-3 d-flex align-items-center justify-content-center">
+                  <canvas id="miChart" style="min-height: 280px;"></canvas>
                 </div>
               </div>
             </div>
-            
+
             <div class="col-12 col-lg-6">
               <div class="bg-white border rounded-3 h-100">
                 <div class="p-3 border-bottom d-flex justify-content-between">
                   <h4 class="mb-0">
-                    <select>
-                      <option selected>Categorias</option>
-                      <option >Productos</option>
+                    <select id = 'select-type-barchart'class="form-select-sm border-0 bg-transparent fw-bold">
+                      <option selected value='categorias'>Categorias</option>
+                      <option value ='productos'>Productos</option>
                     </select>
                     más vendidas/os
                   </h4>
-                  <select>
-                    <option selected>Hoy</option>
-                    <option>Ultima semana</option>
-                    <option>Ultima mes</option>
+                  <select id='select-date-combined' class="form-select form-select-sm w-auto">
+                    <option selected value='hoy'>Hoy</option>
+                    <option value='semana anterior'>Ultima semana</option>
+                    <option value='mes anterior'>Ultimos 30 dias</option>
+                    <option value='año'>Este año</option>
                   </select>
                 </div>
                 <div class="p-3 d-flex align-items-center justify-content-center">
-                  <canvas id="miChart2"style="max-height: 480px; max-width: 380px;"></canvas>
+                  <canvas id="miChart2" style="min-height: 280px; "></canvas>
                 </div>
               </div>
             </div>
           </div>
-
-        <div class="row g-3">
+          <div class="row g-3">
                     <div class="col-12 col-lg-5">
                         <div class="bg-white border rounded-3 h-100">
                             <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
@@ -169,6 +214,8 @@ if(isset($_SESSION['Dashboard'])){
                 </div>
             </main>
         </div>
+        </div>
+
     </div>
 
     <script
@@ -177,5 +224,23 @@ if(isset($_SESSION['Dashboard'])){
       crossorigin="anonymous"
     ></script>
   <script type="module" src="../../controllers/admin/DashboardController.js"></script>  
+  <script>
+    function updateCountdown() {
+      const now = Math.floor(Date.now() / 1000);
+      const expiresAt = <?= $_SESSION['expires_at'] ?>;
+      const remaining = expiresAt - now;
+      if (remaining <= 0) {
+        document.getElementById('countdown').textContent = 'Expirado';
+
+        return;
+      }
+      const hours = Math.floor(remaining / 3600);
+      const minutes = Math.floor((remaining % 3600) / 60);
+      const seconds = remaining % 60;
+      document.getElementById('countdown').textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
 </body>
 </html>

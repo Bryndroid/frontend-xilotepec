@@ -120,3 +120,20 @@ h1, h2, h5, .topbar-title {
 .bg-info {
     background-color: #a8d5cc !important; 
 }
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.4); /* Fondo semi-transparente */
+  backdrop-filter: blur(6px);            /* EL EFECTO DE DIFUMINADO */
+  -webkit-backdrop-filter: blur(6px);    /* Soporte para Safari */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;                         /* Por encima del contenido */
+  border-radius: 0.5rem;                 /* Ajusta según el redondeado de tus cards */
+  transition: all 0.3s ease-in-out;
+}

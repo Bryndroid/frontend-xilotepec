@@ -1,3 +1,11 @@
+<?php
+require __DIR__.'/../../helpers/AuthMiddleware.php';
+
+if(!isUserAdmin() || !validate_jwt()){
+  header('Location: /admin/errors/401.php');
+}
+?>
+
 <!doctype html>
 <html lang="es">
   <head>
@@ -19,8 +27,8 @@
               <i class="fa-solid fa-user"></i>
             </div>
             <div>
-              <div class="fw-bold">Usuario nombre</div>
-              <div class="text-muted" style="font-size: 12px">Administrador</div>
+              <div class="fw-bold"><?= $_SESSION['user']['name'] ?></div>
+              <div class="text-muted" style="font-size: 12px">Administrador, tiempo restante: <span id="countdown"></span></div>
             </div>
           </div>
 
@@ -70,9 +78,9 @@
                     <div class="d-flex align-items-center gap-3">
                         <select id="filter-promo-status" class="from-select rounded-pill bg-light border-0" style="width: 150px;">
                             <option value="Todas">Todas</option>
-                            <option value="Activa">Activas</option>
-                            <option value="Programada">Programadas</option>
-                            <option value="Inactiva">Inactivas</option>
+                            <!--TODO: Arreglar esto xdd -->
+                            <option value="activas">Activas</option>
+                            <option value="inactivas">Inactivas</option>
                         </select>
                         <button id="btn-nueva-promo" class="btn btn-success rounded-pill px-3">
                             <i class="fa-solid fa-plus"></i>
@@ -93,7 +101,15 @@
                             <th>Acciones</th>
                         </tr>
                         </thead>
-                        <tbody id="promos-table-body"></tbody>
+                        <tbody id="promos-table-body">
+                            <tr>
+                                <td id='table-head-status' colspan="100%" class="text-center">
+                                    <div class="spinner-border text-success m-4" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>   
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -106,7 +122,7 @@
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content border-0 shadow" style="border-radius: 16px;">
                 <form action="#" id="form-gestion-promo">
-                    <input type="hidden" id="modal_promo_id">
+                    <input type="hidden" id="modal_promo_id" value ='0'>
                     <div class="modal-body p-4 p-md-5" style="background: #e1dada;">
                         <div class="row g-4">
 
@@ -122,7 +138,7 @@
                             </div>
 
                             <div class="col-12 col-lg-4">
-                                <h5 class="fw-bold mb-3 text-dark">Detaalles principales</h5>
+                                <h5 class="fw-bold mb-3 text-dark">Detalles principales</h5>
                                 <div class="mb-3">
                                     <label for="#" class="form-label fw-bold small">Nombre de la promoción:</label>
                                     <input type="text" id="modal_promo_nombre" class="form-control" required>
@@ -130,11 +146,9 @@
                                 <div class="mb-3">
                                     <label for="#" class="form-label fw-bold small mb-1 d-block">Estado: </label>
                                     <div class="btn-group w-100" role="group">
-                                        <input type="radio" name="promo_estado" id="estado_activa" class="btn-check" value="Activa" checked>
+                                        <input type="radio" name="promo_estado" id="estado_activa" class="btn-check" value="activa" checked>
                                         <label for="estado_activa" class="btn btn-outline-success btn-sm">Activa</label>
-                                        <input type="radio" name="promo_estado" id="estado_prog" value="Programada" class="btn-check">
-                                        <label for="estado_prog" class="btn btn-outline-success btn-sm">Programada</label>
-                                        <input type="radio" class="btn-check" name="promo_estado" id="estado_inact" value="Inactiva">
+                                        <input type="radio" class="btn-check" name="promo_estado" id="estado_inact" value="inactiva">
                                         <label for="estado_inact" class="btn btn-outline-success btn-sm">Inactiva</label>
                                     </div>
                                 </div>
@@ -146,16 +160,16 @@
                                 <label for="#" class="form-label fw-bold small mb-1">Periodo de validez:</label>
                                 <div class="row g-2">
 
-                                    <div class="col-6">
+                                    <div class="col-12">
                                         <div class="input-group input-group-sm">
                                             <span class="input-group-text bg-light fw-bold">Desde</span>
-                                            <input type="date" id="modal_promo_desde" class="form-control" required>
+                                            <input type="datetime-local" id="modal_promo_desde" class="form-control" required>
                                         </div>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-12">
                                         <div class="input-group input-group-sm">
                                             <span class="input-group-text bg-light fw-bold">Hasta</span>
-                                            <input type="date" id="modal_promo_hasta" class="form-control" required>
+                                            <input type="datetime-local" id="modal_promo_hasta" class="form-control" required>
                                         </div>
                                     </div>
                                 </div>
@@ -163,16 +177,39 @@
 
                             <div class="col-12 col-lg-4">
                                 <h5 class="fw-bold mb-3 text-dark">Regla de la oferta</h5>
-                                <div class="bg-white p-3 rounded-3 mb-3 border">
-                                    <p class="fw-bold small mb-2">Productos afectados</p>
-                                    <input type="text" class="form-control form-control-sm mb-2" id="modal_promo_producto" value="Caramelo king">
+                                <div id="modal_promo_producto" class="bg-white p-3 rounded-3 mb-3 border">
+                                    <p class="fw-bold small mb-2">Lista de productos</p>
+                                    <select id ='select-promo-product' class="form-select" multiple aria-label="Multiple select example">
+                                        
+                                    </select>
+                                    <hr>
+                                    <section id ='product-selected-list'>
+                                        <p class="fw-bold small mb-2">Productos seleccionados: </p>
+                                        <ul>
+                                            
+                                        </ul>
+                                    </section>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="#" class="form-label fw-bold small">Tipo:</label>
+                                    <!--TODO: Estas categorias podrian ser dinamicas o noxd -->
+                                    <select id ='select-promo-type'class="form-select" required>
+                                        <option selected value = '2x1'>2x1</option>
+                                        <option value="porcentaje">Porcentaje</option>
+                                        <option value="monto_fijo">Monto fijo</option>
+                                        <option value="combo_fijo">Combo fijo</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="#" class="form-label fw-bold small">Valor:</label>
+                                    <input id = 'input-valor-promo' type ='number' class="form-control" min = 0 max =999 required>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center border-0" style="background: #fff;">
                         <button type="button" class="btn btn-secondary px-4 py-2" data-bs-dismiss="modal">Cancelar</button>
-                        <button class="btn btn-success px-4 py-2" data-bs-dismiss="modal" onclick="PromocionesController.mostrarAlerta('Promoción guardada con exito.','success')">Guardar Cambios</button>
+                        <button type="submit" class="btn btn-success px-4 py-2">Guardar Cambios</button>
                     </div>
                 </form>
             </div>
@@ -180,5 +217,22 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="../../controllers/admin/PromocionesController.js"></script>
+    <script>
+      function updateCountdown() {
+        const now = Math.floor(Date.now() / 1000);
+        const expiresAt = <?= $_SESSION['expires_at'] ?>;
+        const remaining = expiresAt - now;
+        if (remaining <= 0) {
+          document.getElementById('countdown').textContent = 'Expirado';
+          return;
+        }
+        const hours = Math.floor(remaining / 3600);
+        const minutes = Math.floor((remaining % 3600) / 60);
+        const seconds = remaining % 60;
+        document.getElementById('countdown').textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+      setInterval(updateCountdown, 1000);
+      updateCountdown();
+    </script>
 </body>
 </html>

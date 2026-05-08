@@ -1,7 +1,9 @@
 <?php
-/* if(!validate_jwt()){
-    header('Location: 404.php');
-} */
+require __DIR__.'/../../helpers/AuthMiddleware.php';
+
+if(!isUserAdmin() || !validate_jwt()){
+  header('Location: /admin/errors/401.php');
+}
 ?>
 
 <!DOCTYPE html>
@@ -25,8 +27,8 @@
                     <i class="fa-solid fa-user"></i>
                 </div>
                 <div>
-                    <div class="fw-bold">Usuario nombre</div>
-                    <div class="text-muted" style="font-size: 12px;">Administrador</div>
+                    <div class="fw-bold"><?= $_SESSION['user']['name'] ?></div>
+                    <div class="text-muted" style="font-size: 12px;">Administrador, tiempo restante: <span id="countdown"></span></div>
                 </div>
             </div>
             <nav class="sidebar-nav p-3 flex-grow-1">
@@ -71,11 +73,11 @@
                         </div>
                         <!--los fiiltros-->
                         <div class="d-flex gap-3">
+                            <!--TODO: Cargar dinamico estas categorias -->
                             <select id="filter-category" class="form-select rounded-pill bg-light border-0" style="width: 150px;">
-                                <option value="Todas">Categorías</option>
-                                <option value="Ice coffees">Ice coffees</option>
-                                <option value="Calientes">Calientes</option>
-                                <option value="Postres">Postres</option>
+                                <option value="Todas"><div class="spinner-border text-success m-4" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div></option>
                             </select>
                             <button id="btn-nuevo-producto" class="btn btn-success rounded-pill px-3">
                                 <i class="fa-solid fa-plus me-1"></i> Nuevo 
@@ -96,7 +98,15 @@
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="menu-table-body"></tbody>
+                            <tbody id="menu-table-body">
+                                <tr>
+                                    <td id='table-head-status' colspan="100%" class="text-center">
+                                        <div class="spinner-border text-success m-4" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>   
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -109,7 +119,7 @@
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content border-0 shadow" style="border-radius: 16px;">
                 <form id="form-producto">
-                    <input type="hidden" id="modal_prod_id">
+                    <input type="hidden" id="modal_prod_id" value = '0'>
                     <div class="modal-body p-4 p-md-5" style="background: #e1dada;">
                         <div class="row g-4">
 
@@ -145,10 +155,8 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-bold small">Categoría:</label>
-                                    <select id="modal_prod_cat" class="form-select">
-                                        <option value="Ice coffees">Ice coffees</option>
-                                        <option value="Calientes">Calientes</option>
-                                        <option value="Postres">Postres</option>
+                                    <select id ='select-categoria-product' class="form-select" >
+                                        
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -160,10 +168,10 @@
                             <!--Acaa es porque no se que van a dejar del menu en si por si se agrega algo mas aca queda
                             esto no lo borres-->
                             <div class="col-12 col-lg-4">
-                                <h5 class="fw-bold mb-3 text-dark">Por Cambios</h5>
-                                <div class="bg-white p-3 rounded-3 border">
-                                    <p class="fw-bold small mb-2">####</p>
-                                    <p class="text-muted small mb-0" id="modal_prod_cat_preview">—</p>
+                               
+                                <div class=" mt-5">
+                                    <p class="fw-bold small mb-2">Cantidad máxima por persona: </p>
+                                    <input type="number" id="modal_prod_cantidad" class="form-control" step="1" required>
                                 </div>
                             </div>
 
@@ -171,7 +179,7 @@
                     </div>
                     <div class="modal-footer justify-content-center border-0" style="background: #fff;">
                         <button type="button" class="btn btn-secondary px-4 py-2" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-success px-4 py-2" data-bs-dismiss="modal" onclick="MenuController.mostrarAlerta('Producto guardado con éxito.', 'success')">Guardar Cambios</button>
+                        <button type="submit" class="btn btn-success px-4 py-2">Guardar Cambios</button>
                     </div>
                 </form>
             </div>
@@ -180,5 +188,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="../../controllers/admin/MenuController.js"></script>
+    <script>
+      function updateCountdown() {
+        const now = Math.floor(Date.now() / 1000);
+        const expiresAt = <?= $_SESSION['expires_at'] ?>;
+        const remaining = expiresAt - now;
+        if (remaining <= 0) {
+          document.getElementById('countdown').textContent = 'Expirado';
+          return;
+        }
+        const hours = Math.floor(remaining / 3600);
+        const minutes = Math.floor((remaining % 3600) / 60);
+        const seconds = remaining % 60;
+        document.getElementById('countdown').textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+      setInterval(updateCountdown, 1000);
+      updateCountdown();
+    </script>
 </body>
 </html>

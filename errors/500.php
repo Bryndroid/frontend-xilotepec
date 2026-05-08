@@ -1,5 +1,5 @@
 <?php
-$pageTitle = '404 - Página no encontrada';
+$pageTitle = '500 - Error interno';
 $assetBase = '../';
 ?>
 <!doctype html>
@@ -25,11 +25,11 @@ $assetBase = '../';
           style="width: 80px;"
         >
 
-        <h1 class="display-1 fw-bold text-warning">404</h1>
-        <h2 class="fw-bold mb-3">Página no encontrada</h2>
+        <h1 class="display-1 fw-bold text-secondary">500</h1>
+        <h2 class="fw-bold mb-3">Error interno del servidor</h2>
 
         <p class="text-muted mb-4">
-          La página que buscas no existe o fue movida.
+          Ocurrió un problema inesperado. Intenta nuevamente más tarde.
         </p>
 
         <a href="<?= $assetBase ?>public/index.php" class="btn btn-primary">

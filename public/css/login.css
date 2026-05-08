@@ -1,0 +1,154 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Great+Vibes&display=swap");
+
+body {
+  background-color: #9eb09e; /* Color verde salvia de fondo */
+  margin: 0;
+  padding: 0;
+  font-family: "Montserrat", sans-serif;
+}
+
+.contenedor-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px; /* Margen para móviles */
+}
+
+.card {
+  border: none;
+  border-radius: 15px; /* Bordes redondeados de la tarjeta */
+  overflow: hidden;
+  max-width: 850px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.imagen {
+  position: relative; /* Para poder posicionar el texto encima */
+}
+
+.imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  min-height: 500px;
+}
+
+/* --- Textos sobre las imágenes --- */
+.img-overlay {
+  position: absolute;
+  bottom: 40px;
+  width: 100%;
+  color: white;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+.login-overlay {
+  text-align: center;
+  left: 0;
+}
+
+.login-overlay .small-text {
+  font-size: 0.95rem;
+  margin-bottom: 0;
+  font-style: italic;
+}
+
+.login-overlay .script-text {
+  font-family: "Great Vibes", cursive;
+  font-size: 4rem;
+  line-height: 1;
+  margin-top: 5px;
+  font-weight: normal;
+}
+
+.register-overlay {
+  text-align: left;
+  left: 30px;
+  bottom: 30px;
+}
+
+.register-overlay .bold-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* --- Formulario --- */
+.formulario {
+  padding: 50px 40px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: #ffffff;
+}
+
+.formulario h3 {
+  font-weight: 800;
+  margin-bottom: 35px;
+  font-size: 1.8rem;
+}
+
+.formulario form {
+  width: 100%;
+  max-width: 320px; /* Controla el ancho de los inputs para que no se estiren de más */
+}
+
+.form-control {
+  border-radius: 30px; /* Inputs con forma de píldora */
+  padding: 12px 20px;
+  border: 1px solid #c4c4c4;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-color: #9eb09e;
+}
+
+.btn-buttons {
+  background-color: #9aa992; /* Color verde del botón */
+  color: white;
+  border-radius: 30px; /* Botón con forma de píldora */
+  padding: 12px;
+  font-weight: 600;
+  border: none;
+  transition: 0.3s;
+  margin-top: 5px;
+}
+
+.btn-buttons:hover {
+  opacity: 0.9;
+  background-color: #83917b;
+  color: white;
+}
+
+.formulario p {
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.formulario p a {
+  color: #666;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.formulario p a:hover {
+  text-decoration: underline;
+}
+
+/* Ajustes para dispositivos móviles */
+@media (max-width: 768px) {
+  .formulario {
+    padding: 40px 20px;
+  }
+}
+

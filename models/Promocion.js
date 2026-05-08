@@ -1,33 +1,57 @@
-//datos estaticos 
+
+import { cookieHandler } from "../helpers/getCookie.js";
+
 export const PromocionesModel ={
     obtenerPromocionesActivas: async () =>{
-        /* return [
-            {
-                id:'1',
-                nombre:'2x1 en Caramelo King',
-                descripcion:'Promoción especial valida de lunes a miércoles',
-                desde:'30/04/2026',
-                hasta:'05/05/2026',
-                estado:'Activa',
-                img:'link de claudinary (despues veo eso)'
-            },
-            {
-                id:'22',
-                nombre:'Dia de las madres',
-                descripcion:'Este dia de las madres',
-                desde:'06/04/2026',
-                hasta:'10/05/2026',
-                estado:'Programada',
-                img:'link de claudinary (despues veo eso)'
-            }
-        ] */
-       const peticion = await fetch('http://localhost:8000/api/promociones/active');
+       const peticion = await fetch('http://localhost:8000/api/promociones-active');
        const promociones = await peticion.json();
-       return promociones;
+       return peticion.ok ? promociones : { status: false, message: promociones.message || 'Error al obtener promociones activas', data: promociones };
     },
     obtenerPromociones: async ()=>{
         const peticion = await fetch('http://localhost:8000/api/promociones');
-        const promociones = peticion.json();
-        return promociones;
+        const promociones = await peticion.json();
+        return peticion.ok ? promociones : { status: false, message: promociones.message || 'Error al obtener promociones', data: promociones };
+    },
+    crearPromociones: async (promocion)=>{
+        const token = cookieHandler.getCookie('jwt_token');
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const peticion = await fetch('http://localhost:8000/api/promociones',{
+            method: 'POST',
+            headers,
+            body: JSON.stringify(promocion)
+        });
+        const estado = await peticion.json();
+        return peticion.ok ? estado : { status: false, message: estado.message || 'Error al crear promoción', data: estado };
+    },
+    modificarPromocion: async (promocion) => {
+        const token = cookieHandler.getCookie('jwt_token');
+        const idPromocion = promocion.id;
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const peticion = await fetch(`http://localhost:8000/api/promociones/${idPromocion}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify(promocion)
+        });
+        const respuesta = await peticion.json();
+        return peticion.ok ? respuesta : { status: false, message: respuesta.message || 'Error al modificar promoción', data: respuesta };
+    },
+    eliminarPromocion: async (id) => {
+        const token = cookieHandler.getCookie('jwt_token');
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const peticion = await fetch(`http://localhost:8000/api/promociones/${id}`, {
+            method: 'DELETE',
+            headers
+        });
+        const resultado = await peticion.json();
+        return peticion.ok ? resultado : { status: false, message: resultado.message || 'Error al eliminar promoción', data: resultado };
     }
 }

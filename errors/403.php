@@ -1,5 +1,5 @@
 <?php
-$pageTitle = '404 - Página no encontrada';
+$pageTitle = '403 - Acceso denegado';
 $assetBase = '../';
 ?>
 <!doctype html>
@@ -25,11 +25,11 @@ $assetBase = '../';
           style="width: 80px;"
         >
 
-        <h1 class="display-1 fw-bold text-warning">404</h1>
-        <h2 class="fw-bold mb-3">Página no encontrada</h2>
+        <h1 class="display-1 fw-bold text-danger">403</h1>
+        <h2 class="fw-bold mb-3">Acceso denegado</h2>
 
         <p class="text-muted mb-4">
-          La página que buscas no existe o fue movida.
+          No tienes permisos para acceder a esta página.
         </p>
 
         <a href="<?= $assetBase ?>public/index.php" class="btn btn-primary">

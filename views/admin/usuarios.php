@@ -1,3 +1,11 @@
+<?php
+require __DIR__.'/../../helpers/AuthMiddleware.php';
+
+if(!isUserAdmin() || !validate_jwt()){
+  header('Location: /admin/errors/401.php');
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -19,8 +27,8 @@
                     <i class="fa-solid fa-user"></i>
                 </div>
                 <div>
-                    <div class="fw-bold">Usuario nombre</div>
-                    <div class="text-muted" style="font-size: 12px;">Administrador</div>
+                    <div class="fw-bold"><?= $_SESSION['user']['name'] ?></div>
+                    <div class="text-muted" style="font-size: 12px;">Administrador, tiempo restante: <span id="countdown"></span></div>
                 </div>
             </div>
             <nav class="sidebar-nav p-3 flex-grow-1">
@@ -65,10 +73,9 @@
                         <div class="d-flex gap-3">
                             <select id="filter-rol" class="form-select rounded-pill bg-light border-0" style="width: 160px;">
                                 <option value="Todos">Todos</option>
-                                <option value="Administrador">Administrador</option>
+                                <option value="cliente">Cliente</option>
                                 <!--si van a borrar los perfiles nuevos solo borren esto-->
-                                <option value="Publicista">Publicista</option>
-                                <option value="Gerente">Gerente</option>
+                                <option value="admin">Admin</option>
                                 <!--hasta aca-->
                             </select>
                             <button id="btn-nuevo-usuario" class="btn btn-success rounded-pill px-3">
@@ -86,10 +93,17 @@
                                     <th>Correo</th>
                                     <th>Rol</th>
                                     <th>Estado</th>
-                                    <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="usuarios-table-body"></tbody>
+                            <tbody id="usuarios-table-body">
+                               <tr>
+                                    <td id='table-head-status' colspan="100%" class="text-center">
+                                        <div class="spinner-border text-success m-4" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </td>
+                                </tr>               
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -102,7 +116,8 @@
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content border-0 shadow" style="border-radius: 16px;">
                 <form id="form-usuario">
-                    <input type="hidden" id="modal_usr_id">
+                    <!--TODO: Mostrar esto de una manera chida -->
+                    <input type="hidden" id="modal_usr_id" value = '0'>
                     <div class="modal-body p-4 p-md-5" style="background: #e1dada;">
                         <div class="row g-4">
 
@@ -117,47 +132,43 @@
                                     <label class="form-label fw-bold small">Correo electrónico:</label>
                                     <input type="email" id="modal_usr_correo" class="form-control" required>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold small mb-1 d-block">Estado:</label>
-                                    <div class="btn-group w-100" role="group">
-                                        <input type="radio" name="usr_estado" id="usr_estado_activo" class="btn-check" value="Activo" checked>
-                                        <label for="usr_estado_activo" class="btn btn-outline-success btn-sm">Activo</label>
-                                        <input type="radio" name="usr_estado" id="usr_estado_inactivo" class="btn-check" value="Inactivo">
-                                        <label for="usr_estado_inactivo" class="btn btn-outline-success btn-sm">Inactivo</label>
-                                    </div>
-                                </div>
                             </div>
 
                         <!--col de roles -->
                             <div class="col-12 col-lg-6">
-                                <h5 class="fw-bold mb-3 text-dark">Rol y acceso</h5>
+                                <h5 class="fw-bold mb-3 text-dark">Rol y Contraseña</h5>
                                 <div class="mb-3">
                                     <label class="form-label fw-bold small">Rol asignado:</label>
                                     <select id="modal_usr_rol" class="form-select">
-                                        <option value="Administrador">Administrador</option>
+                                        <option value="cliente">Cliente</option>
                                         <!--si van a borrar los perfiles nuevos solo borren esto-->
-                                        <option value="Publicista">Publicista</option>
-                                        <option value="Gerente">Gerente</option>
+                                        <option value="admin">Administrador</option>
                                         <!--hasta aca-->
                                     </select>
+                                </div>
+                                <div class="mb-3" id ='container-contra' >
+                                    <div class = 'input-group'>
+                                        <label class="form-label fw-bold small label-contra">Contraseña:</label>
+                                        <button class="btn btn-outline-secondary" type="button" id="button-addon1">Mostrar</button>
+                                        <input type='password' id = 'modal_usr_contra' class="form-control" minlength="8" >
+                                    </div>
                                 </div>
                                 <div class="bg-white p-3 rounded-3 border">
                                     <p class="fw-bold small mb-2">Permisos del rol</p>
                                     <!--si van a borrar los perfiles nuevos solo borren esto-->
                                     <div id="permisos-roles-adicionales">
-                                        <p class="text-muted small mb-1"><b>Administrador:</b>Acceso total a todas las fuciones</p>
-                                        <p class="text-muted small mb-1"><b>Publicista:</b>Solo para gestionar las promociones</p>
-                                        <p class="text-muted small mb-0"><b>Gerente:</b>Reportes del index y gestionar menú</p>
+                                        <p class="text-muted small mb-1"><b>Administrador:</b>Acceso total a todas las fuciones y a vista de Dashboard</p>
+                                        <p class="text-muted small mb-1"><b>Cliente:</b>Usuario con acceso a productos y creacion de ordenes</p>
                                     </div>
                                     <!--hasta aca-->
                                 </div>
                             </div>
-
+                            
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center border-0" style="background: #fff;">
                         <button type="button" class="btn btn-secondary px-4 py-2" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-success px-4 py-2" data-bs-dismiss="modal" onclick="UsuariosController.mostrarAlerta('Usuario guardado con éxito.', 'success')">Guardar Cambios</button>
+                        <button type="submit" class="btn btn-success px-4 py-2">Guardar Cambios</button>
                     </div>
                 </form>
             </div>
@@ -166,5 +177,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="../../controllers/admin/UsuariosController.js"></script>
+    <script>
+      function updateCountdown() {
+        const now = Math.floor(Date.now() / 1000);
+        const expiresAt = <?= $_SESSION['expires_at'] ?>;
+        const remaining = expiresAt - now;
+        if (remaining <= 0) {
+          document.getElementById('countdown').textContent = 'Expirado';
+          return;
+        }
+        const hours = Math.floor(remaining / 3600);
+        const minutes = Math.floor((remaining % 3600) / 60);
+        const seconds = remaining % 60;
+        document.getElementById('countdown').textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+      setInterval(updateCountdown, 1000);
+      updateCountdown();
+    </script>
 </body>
 </html>

@@ -1,0 +1,238 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+* {
+    font-family: "Inter", sans-serif;
+}
+
+header div,
+header,
+nav {
+    background-color: #9dac99;
+}
+
+.color-xilo {
+    background-color: #9dac99;
+}
+
+.btn:hover {
+    border: 1px solid #9dac99;
+}
+
+.banner {
+    height: 90vh;
+    background: url("https://res.cloudinary.com/dhotqeo6c/image/upload/v1778111237/granosCafe_txs7x8.jpg");
+    background-size: cover;
+    background-position: center -1px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+        aspect-ratio: 1/1;
+        width: 250px;
+        border-radius: 50%;
+    }
+}
+
+header {
+    img {
+        aspect-ratio: 1/1;
+        width: 50px;
+        border-radius: 50%;
+    }
+}
+
+.btn-conocenos {
+    display: inline-block;
+    transition: transform 0.2s ease-in-out;
+}
+
+.btn-conocenos:hover {
+    transform: scale(1.1);
+}
+
+.contenedor {
+    padding: 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+}
+
+.box {
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0.5rem;
+    }
+}
+
+.menu {
+    color: white;
+    font-weight: 800;
+    font-size: 3rem;
+
+    span {
+        position: absolute;
+    }
+}
+
+p {
+    width: 60%;
+}
+
+.conocenos {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    img {
+        border-radius: 50%;
+        width: 150px;
+    }
+}
+
+.bento {
+    margin: 0 1rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 300px);
+    gap: 1rem;
+    justify-content: space-around;
+}
+
+.bento2 {
+    margin: 0 1rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 350px);
+    gap: 1rem;
+    justify-content: space-around;
+}
+
+.bento-cart {
+    margin: 0 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 300px);
+    gap: 1rem;
+    justify-content: space-around;
+
+    grid-template-areas:
+        "box-1 box-1 box-2"
+        "box-1 box-1 box-3";
+
+    button {
+        border: none;
+    }
+}
+
+.bento {
+    grid-template-areas:
+        "box-1 box-1 box-2 box-4"
+        "box-1 box-1 box-3 box-5";
+}
+
+.bento2 {
+    grid-template-areas:
+        "box-1 box-2 box-2 box-4"
+        "box-3 box-2 box-2 box-5";
+}
+
+footer {
+    background-color: #4e5146;
+}
+
+@media (max-width: 992px) {
+    #logo-conocenos {
+        display: none;
+    }
+
+    .banner {
+        height: 50vh;
+
+        img {
+            aspect-ratio: 1/1;
+            width: 150px;
+            border-radius: 50%;
+        }
+    }
+
+    p {
+        width: 100%;
+    }
+
+    .bento,
+    .bento2 {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, 200px);
+        grid-template-areas:
+            "box-1 box-1 box-2"
+            "box-1 box-1 box-3"
+            "box-5 box-4 box-4"
+            "box-5 box-4 box-4";
+    }
+}
+
+@media (max-width: 768px) {
+
+    .bento,
+    .bento2 {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(5, 200px);
+        grid-template-areas:
+            "box-1 box-1"
+            "box-1 box-1"
+            "box-2 box-3"
+            "box-4 box-5"
+            "box-4 box-5";
+    }
+
+    .bento-cart {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 200px);
+        grid-template-areas:
+            "box-1 box-1"
+            "box-1 box-1"
+            "box-2 box-3";
+    }
+
+    .menu {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .bento,
+    .bento2 {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-template-areas:
+            "box-1"
+            "box-2"
+            "box-3"
+            "box-4"
+            "box-5";
+    }
+
+    .bento-cart {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-template-areas:
+            "box-1"
+            "box-2"
+            "box-3";
+    }
+}
