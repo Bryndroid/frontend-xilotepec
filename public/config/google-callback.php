@@ -1,12 +1,10 @@
 <?php
 require_once 'config.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
-
-global $conn;
 
 $client = new Google_Client();
 $client->setClientId(GOOGLE_CLIENT_ID);
@@ -20,42 +18,49 @@ if (!isset($_GET['code'])) {
     header("Location: " . filter_var($auth_url, FILTER_SANITIZE_URL));
     exit;
 } else {
-    $client->authenticate($_GET['code']);
-    $token = $client->getAccessToken();
+    // Intercambiar el code por el token
+    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+
+    if (isset($token['error'])) {
+        die("Error al obtener el token: " . $token['error']);
+    }
+
     $client->setAccessToken($token);
 
+    // Obtener datos del usuario
     $oauth = new Google_Service_Oauth2($client);
     $user_info = $oauth->userinfo->get();
 
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email=?");
-    $stmt->bind_param("s", $user_info->email);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // Enviar datos a tu API Laravel
+    $ch = curl_init('http://127.0.0.1:8000/api/login/google');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode([
+            'email' => $user_info->email,
+            'name'  => $user_info->name
+        ]),
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_RETURNTRANSFER => true
+    ]);
 
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    $data = json_decode($response, true);
+
+    if ($http_code === 200 && isset($data['token'])) {
+        $_SESSION['user'] = $data['user'];
+        $_SESSION['token'] = $data['token'];
+
+        setcookie('jwt_token', $data['token'], time() + 3600, '/', '', false, false);
+
+        header("Location: ../index.php");
+        exit;
     } else {
-        $stmt = $conn->prepare("INSERT INTO users (name, email, role) VALUES (?, ?, 'cliente')");
-        $stmt->bind_param("ss", $user_info->name, $user_info->email);
-        $stmt->execute();
-        $user_id = $stmt->insert_id;
-        $user = ['id' => $user_id, 'name' => $user_info->name, 'email' => $user_info->email];
+        echo "Error en login con Google: " . ($data['mensaje'] ?? 'Respuesta inválida');
     }
 
-    $_SESSION['user'] = $user;
-    $_SESSION['token'] = $token;
+    var_dump($response);
 
-    // la cookie
-    setcookie(
-        'jwt_token',
-        $token['id_token'],
-        time() + 3600, 
-        '/',
-        '',           
-        false,        
-        false         
-    );
-
-    header("Location: ../index.php");
-    exit;
 }
