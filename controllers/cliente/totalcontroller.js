@@ -352,7 +352,7 @@ const TotalController = {
 
     if (!MainController.estaAutenticado()) {
       MainController.mostrarAlerta('Debes iniciar sesión para enviar tu pedido. Redirigiendo al login...', 'warning', 'checkout-alert-container');
-      setTimeout(() => window.location.href = '/admin/public/login.php', 1200);
+      setTimeout(() => window.location.href = '../public/login.php', 1200);
       return;
     }
 
