@@ -24,7 +24,7 @@ require __DIR__ . '/partials/head.php';
           <h3 class="mb-1 fw-bold" style="color: var(--primary-dark)">Xilotepec Coffee Shop</h3>
           <p class="text-muted mb-0">Detalle de compra</p>
         </div>
-        <img src="<?= $assetBase ?>public/img/Logo xilo color.jpg" alt="Xilotepec" style="width:82px;border-radius:16px" />
+        <img src="<?= $assetBase ?>public/images/Logo xilo color.jpg" alt="Xilotepec" style="width:82px;border-radius:16px" />
       </div>
       <div id="tablaContainer"></div>
     </section>

@@ -62,7 +62,7 @@ export const MainController = {
     } finally {
       MainController.eliminarToken();
       localStorage.removeItem('xilotepec_cart');
-      window.location.href = '../public/login.php?logout=1';
+      window.location.href = '../../public/login.php?logout=1';
     }
   },
 

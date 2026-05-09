@@ -1,4 +1,5 @@
 import { MenuModel } from '../../models/Product.js';
+import { CategoriasModel } from '../../models/Categories.js';
 import { MainController } from './maincontroller.js';
 
 // ====== CAPA DE DATOS ======
@@ -144,13 +145,92 @@ const CartService = {
 // ====== CAPA DE PRESENTACIÓN ======
 // Renderiza los elementos en el DOM
 const CartUIRenderer = {
-  renderProductos(productos) {
-    const grupos = this.agruparProductosPorCategoria(productos);
 
-    Object.entries(grupos).forEach(([containerId, items]) => {
-      const container = document.getElementById(containerId);
+
+  getCategoriaImagen(nombre) {
+    const nombreLower = String(nombre || '').toLowerCase();
+    if (['caliente', 'hot'].some(t => nombreLower.includes(t))) return '../../public/img/bebidacaliente.jpg';
+    if (['fría', 'fria', 'cold', 'helada'].some(t => nombreLower.includes(t))) return '../../public/img/bebidafria.jpg';
+    return '../../public/img/postre.jpg';
+  },
+
+  getContainerIds(categorias) {
+    if (Array.isArray(categorias) && categorias.length) {
+      return categorias.map(categoria => `categoriaContainer-${categoria.id ?? String(categoria.name || '').toLowerCase().replace(/\s+/g, '-')}`);
+    }
+
+    return ['calientesContainer', 'friasContainer', 'postresContainer'];
+  },
+
+  renderCategorias(categorias) {
+    const menu = document.getElementById('categorias-menu');
+    const modalsContainer = document.getElementById('categoriaModalsContainer');
+    if (!menu || !modalsContainer) return;
+
+    const categoriasList = Array.isArray(categorias) && categorias.length ? categorias : [
+      { id: 'calientes', name: 'Bebidas Calientes', image: '../../public/img/bebidacaliente.jpg' },
+      { id: 'frias', name: 'Bebidas Frías', image: '../../public/img/bebidafria.jpg' },
+      { id: 'postres', name: 'Postres', image: '../../public/img/postre.jpg' }
+    ];
+
+    menu.innerHTML = categoriasList.map((categoria) => {
+      const modalId = `categoriaModal-${categoria.id ?? String(categoria.name || '').toLowerCase().replace(/\s+/g, '-')}`;
+      return `
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch">
+          <button type="button" class="btn btn-link p-0 w-100 h-100 category-card open-custom-modal text-start" data-target="${modalId}">
+            <img src="${categoria.image || this.getCategoriaImagen(categoria.name)}" alt="${categoria.name || 'Categoría'}" class="card-img" />
+            <div class="card-img-overlay d-flex align-items-center justify-content-center p-0">
+              <div class="category-card-text text-center px-3 py-2">
+                <h5 class="card-title mb-0">${categoria.name || 'Categoría'}</h5>
+              </div>
+            </div>
+          </button>
+        </div>`;
+    }).join('');
+
+    modalsContainer.innerHTML = categoriasList.map(categoria => {
+      const modalId = `categoriaModal-${categoria.id ?? String(categoria.name || '').toLowerCase().replace(/\s+/g, '-')}`;
+      const containerId = `categoriaContainer-${categoria.id ?? String(categoria.name || '').toLowerCase().replace(/\s+/g, '-')}`;
+      return `
+        <div id="${modalId}" class="custom-modal">
+          <div class="custom-modal-header">
+            <h3>${categoria.name || 'Categoría'}</h3>
+            <button class="close-modal">&times;</button>
+          </div>
+          <div class="custom-modal-body">
+            <div class="products-grid" id="${containerId}"></div>
+          </div>
+        </div>`;
+    }).join('');
+  },
+
+  renderPlaceholders(categorias) {
+    this.getContainerIds(categorias).forEach(id => {
+      MainController.renderPlaceholderCards(document.getElementById(id), 3);
+    });
+  },
+
+  renderError(categorias) {
+    this.getContainerIds(categorias).forEach(id => {
+      const container = document.getElementById(id);
+      if (!container) return;
+      container.innerHTML = `
+        <div class="alert alert-warning mb-0" role="alert">
+          <i class="bi bi-wifi-off me-2"></i>
+          No se pudo cargar esta sección del menú. Intenta nuevamente más tarde.
+        </div>`;
+    });
+  },
+
+  renderProductos(productos, categorias) {
+    const containerIds = this.getContainerIds(categorias);
+    const grupos = this.agruparProductosPorCategoria(productos, categorias);
+
+    containerIds.forEach(id => {
+      const container = document.getElementById(id);
       if (!container) return;
 
+      const items = grupos[id] || [];
       if (items.length === 0) {
         container.innerHTML = '<div class="empty-state">No hay productos disponibles en esta categoría.</div>';
       } else {
@@ -161,21 +241,66 @@ const CartUIRenderer = {
     this.registrarEventosProductos();
   },
 
-  agruparProductosPorCategoria(productos) {
-    const grupos = {
-      calientesContainer: productos.filter(p => this.esCategoria(p, ['caliente', 'hot'])),
-      friasContainer: productos.filter(p => this.esCategoria(p, ['fría', 'fria', 'cold', 'helada'])),
-      postresContainer: productos.filter(p => this.esCategoria(p, ['postre', 'dessert']))
-    };
+  agruparProductosPorCategoria(productos, categorias) {
+    const grupos = {};
+    const containerIds = this.getContainerIds(categorias);
+    containerIds.forEach(id => { grupos[id] = []; });
 
-    const yaAgrupados = new Set(
-      [...grupos.calientesContainer, ...grupos.friasContainer, ...grupos.postresContainer]
-        .map(p => p.id)
-    );
+    if (Array.isArray(categorias) && categorias.length) {
+      const categoriasNormalizadas = categorias.map(cat => ({
+        id: cat.id  || '',
+        name: cat.name || '',
+        raw: cat
+      }));
+
+      productos.forEach(producto => {
+        const productCatId = producto.category?.id ?? producto.category_id ?? producto.categoryId ?? '';
+        const productCatName = producto.category?.name ?? producto.category_name ?? producto.categoria ?? '';
+
+        const matched = categoriasNormalizadas.find(cat =>
+          (cat.id && cat.id == productCatId) ||
+          (cat.name && cat.name == productCatName) ||
+          (cat.name && productCatName.includes(cat.name)) ||
+          (cat.name && cat.name.includes(productCatName))
+        );
+
+        if (matched) {
+          grupos[`categoriaContainer-${matched.raw.id ?? matched.raw.name.toLowerCase().replace(/\s+/g, '-')}`]?.push(producto);
+          return;
+        }
+
+        const fallback = this.obtenerContenedorFallback(producto, categorias);
+        if (fallback) grupos[fallback].push(producto);
+      });
+
+      return grupos;
+    }
+
+    grupos.calientesContainer = productos.filter(p => this.esCategoria(p, ['caliente', 'hot']));
+    grupos.friasContainer = productos.filter(p => this.esCategoria(p, ['fría', 'fria', 'cold', 'helada']));
+    grupos.postresContainer = productos.filter(p => this.esCategoria(p, ['postre', 'dessert']));
+
+    const yaAgrupados = new Set([
+      ...grupos.calientesContainer,
+      ...grupos.friasContainer,
+      ...grupos.postresContainer
+    ].map(p => p.id));
+
     const sinGrupo = productos.filter(p => !yaAgrupados.has(p.id));
     grupos.postresContainer = [...grupos.postresContainer, ...sinGrupo];
 
     return grupos;
+  },
+
+  obtenerContenedorFallback(producto, categorias) {
+    const categoria = String(producto.category?.name ?? producto.category_name ?? producto.categoria ?? '').toLowerCase();
+    const ids = this.getContainerIds(categorias);
+    if (!ids.length) return null;
+
+    if (['caliente', 'hot'].some(t => categoria.includes(t))) return ids[0];
+    if (['fría', 'fria', 'cold', 'helada'].some(t => categoria.includes(t))) return ids[1] || ids[0];
+    if (['postre', 'dessert'].some(t => categoria.includes(t))) return ids[2] || ids[0];
+    return ids[0];
   },
 
   esCategoria(producto, terminos) {
@@ -241,24 +366,6 @@ const CartUIRenderer = {
       </li>`;
   },
 
-  renderPlaceholders() {
-    ['calientesContainer', 'friasContainer', 'postresContainer'].forEach(id => {
-      MainController.renderPlaceholderCards(document.getElementById(id), 3);
-    });
-  },
-
-  renderError() {
-    ['calientesContainer', 'friasContainer', 'postresContainer'].forEach(id => {
-      const container = document.getElementById(id);
-      if (!container) return;
-      container.innerHTML = `
-        <div class="alert alert-warning mb-0" role="alert">
-          <i class="bi bi-wifi-off me-2"></i>
-          No se pudo cargar esta sección del menú. Intenta nuevamente más tarde.
-        </div>`;
-    });
-  },
-
   registrarEventosProductos() {
     document.querySelectorAll('.add-cart-btn').forEach(btn => {
       btn.addEventListener('click', () => CartController.agregarAlCarrito(btn.dataset.id));
@@ -270,24 +377,38 @@ const CartUIRenderer = {
 // Orquesta la interacción entre servicios, datos y vistas
 const CartController = {
   productos: [],
+  categorias: [],
 
   async init() {
-    this.registrarEventosUI();
-    CartUIRenderer.renderPlaceholders();
+    await this.cargarCategorias();
+    CartUIRenderer.renderPlaceholders(this.categorias);
     CartUIRenderer.renderCarrito();
+    this.registrarEventosUI();
 
     try {
       this.productos = await CartDataService.cargarProductos();
-      CartUIRenderer.renderProductos(this.productos);
+      CartUIRenderer.renderProductos(this.productos, this.categorias);
     } catch (error) {
       console.error(error);
-      CartUIRenderer.renderError();
+      CartUIRenderer.renderError(this.categorias);
       MainController.mostrarAlerta(
         'No se pudieron cargar los productos desde la API. Verifica que el servidor Laravel esté activo.',
         'danger',
         'menu-alert-container'
       );
     }
+  },
+
+  async cargarCategorias() {
+    try {
+      const categoriasResp = await CategoriasModel.obtenerCategorias();
+      this.categorias = Array.isArray(categoriasResp) ? categoriasResp : categoriasResp.data ?? [];
+    } catch (error) {
+      console.warn('No se pudieron cargar las categorías:', error);
+      this.categorias = [];
+    }
+
+    CartUIRenderer.renderCategorias(this.categorias);
   },
 
   registrarEventosUI() {

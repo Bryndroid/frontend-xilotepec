@@ -19,23 +19,10 @@ require __DIR__ . '/partials/head.php';
   <h2 class="section-title">Nuestro menú</h2>
 
   <div class="contenedor py-0">
-    <div class="bento-cart" id="categorias-menu">
-      <button class="box menu open-custom-modal" data-target="calientesModal" style="grid-area: box-1">
-        <img src="<?= $assetBase ?>img/bebidacaliente.jpg" alt="Bebidas Calientes" />
-        <span>Bebidas Calientes</span>
-      </button>
-
-      <button class="box menu open-custom-modal" data-target="friasModal" style="grid-area: box-2">
-        <img src="<?= $assetBase ?>img/bebidafria.jpg" alt="Bebidas Frías" />
-        <span>Bebidas Frías</span>
-      </button>
-
-      <button class="box menu open-custom-modal" data-target="postresModal" style="grid-area: box-3">
-        <img src="<?= $assetBase ?>img/postre.jpg" alt="Postres" />
-        <span>Postres</span>
-      </button>
-    </div>
+    <div class="row justify-content-center gx-4 gy-4" id="categorias-menu"></div>
   </div>
+
+  <div id="categoriaModalsContainer"></div>
 
   <h2 class="section-title mt-5">Promociones <small>(Solamente aplica en el local)</small></h2>
   <div id="home-alert-container"></div>
@@ -83,39 +70,6 @@ require __DIR__ . '/partials/head.php';
   id="menu-alert-container" 
   class="position-fixed top-0 end-0 p-3" 
   style="z-index: 3000; width: min(420px, calc(100vw - 2rem));">
-</div>
-
-<div id="calientesModal" class="custom-modal">
-  <div class="custom-modal-header">
-    <h3>Bebidas Calientes</h3>
-    <button class="close-modal">&times;</button>
-  </div>
-
-  <div class="custom-modal-body">
-    <div class="products-grid" id="calientesContainer"></div>
-  </div>
-</div>
-
-<div id="friasModal" class="custom-modal">
-  <div class="custom-modal-header">
-    <h3>Bebidas Frías</h3>
-    <button class="close-modal">&times;</button>
-  </div>
-
-  <div class="custom-modal-body">
-    <div class="products-grid" id="friasContainer"></div>
-  </div>
-</div>
-
-<div id="postresModal" class="custom-modal">
-  <div class="custom-modal-header">
-    <h3>Postres</h3>
-    <button class="close-modal">&times;</button>
-  </div>
-
-  <div class="custom-modal-body">
-    <div class="products-grid" id="postresContainer"></div>
-  </div>
 </div>
 
 <script type="module" src="../../controllers/cliente/cartcontroller.js"></script>
