@@ -1,6 +1,6 @@
-import { MenuModel } from '../../models/Product.js';
-import { CategoriasModel } from '../../models/Categories.js';
-import { MainController } from './maincontroller.js';
+import { MenuModel } from "../../models/Product.js";
+import { CategoriasModel } from "../../models/Categories.js";
+import { MainController } from "./maincontroller.js";
 
 // ====== CAPA DE DATOS ======
 // Accede a los modelos y gestiona la lógica de datos
@@ -10,25 +10,25 @@ const CartDataService = {
       const productos = await MenuModel.obtenerProductosActivos();
       return Array.isArray(productos) ? productos : [];
     } catch (error) {
-      console.error('Error al cargar productos:', error);
+      console.error("Error al cargar productos:", error);
       throw error;
     }
-  }
+  },
 };
 
 // ====== CAPA DE NEGOCIO ======
 // Gestiona la lógica del carrito (agregar, eliminar, modificar cantidad)
 const CartService = {
-  carrito: JSON.parse(localStorage.getItem('xilotepec_cart')) || [],
+  carrito: JSON.parse(localStorage.getItem("xilotepec_cart")) || [],
 
   obtenerMaximoProducto(producto) {
     const maximo = Number(
       producto.max_quantity ??
-      producto.cantidad ??
-      producto.stock ??
-      producto.quantity_available ??
-      producto.available_quantity ??
-      0
+        producto.cantidad ??
+        producto.stock ??
+        producto.quantity_available ??
+        producto.available_quantity ??
+        0,
     );
 
     return Number.isFinite(maximo) ? maximo : 0;
@@ -40,11 +40,11 @@ const CartService = {
     if (maxQuantity <= 0) {
       return {
         ok: false,
-        mensaje: `El producto ${producto.name || 'seleccionado'} no tiene existencias disponibles.`
+        mensaje: `El producto ${producto.name || "seleccionado"} no tiene existencias disponibles.`,
       };
     }
 
-    const item = this.carrito.find(i => String(i.id) === String(producto.id));
+    const item = this.carrito.find((i) => String(i.id) === String(producto.id));
 
     if (item) {
       item.maxQuantity = maxQuantity;
@@ -52,7 +52,7 @@ const CartService = {
       if (Number(item.quantity) >= maxQuantity) {
         return {
           ok: false,
-          mensaje: `No puedes agregar más de ${maxQuantity} unidad(es) de ${item.name}.`
+          mensaje: `No puedes agregar más de ${maxQuantity} unidad(es) de ${item.name}.`,
         };
       }
 
@@ -67,7 +67,7 @@ const CartService = {
       price: Number(producto.price || 0),
       image: CartService.obtenerImagenProducto(producto),
       quantity: 1,
-      maxQuantity
+      maxQuantity,
     };
 
     this.carrito.push(nuevoItem);
@@ -76,9 +76,12 @@ const CartService = {
   },
 
   modificarCantidad(id, delta) {
-    const item = this.carrito.find(i => String(i.id) === String(id));
+    const item = this.carrito.find((i) => String(i.id) === String(id));
     if (!item) {
-      return { ok: false, mensaje: 'No se encontró el producto en el carrito.' };
+      return {
+        ok: false,
+        mensaje: "No se encontró el producto en el carrito.",
+      };
     }
 
     const nuevaCantidad = Number(item.quantity) + Number(delta);
@@ -92,7 +95,7 @@ const CartService = {
     if (maxQuantity > 0 && nuevaCantidad > maxQuantity) {
       return {
         ok: false,
-        mensaje: `No puedes agregar más de ${maxQuantity} unidad(es) de ${item.name}.`
+        mensaje: `No puedes agregar más de ${maxQuantity} unidad(es) de ${item.name}.`,
       };
     }
 
@@ -102,7 +105,7 @@ const CartService = {
   },
 
   eliminarItem(id) {
-    this.carrito = this.carrito.filter(i => String(i.id) !== String(id));
+    this.carrito = this.carrito.filter((i) => String(i.id) !== String(id));
     this.guardar();
   },
 
@@ -112,7 +115,10 @@ const CartService = {
   },
 
   obtenerTotal() {
-    return this.carrito.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    return this.carrito.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0,
+    );
   },
 
   obtenerCantidadTotal() {
@@ -128,90 +134,138 @@ const CartService = {
   },
 
   guardar() {
-    localStorage.setItem('xilotepec_cart', JSON.stringify(this.carrito));
+    localStorage.setItem("xilotepec_cart", JSON.stringify(this.carrito));
   },
 
   obtenerImagenProducto(producto) {
-    const img = producto.url_image || producto.image_url || producto.imagen || '';
+    const img =
+      producto.url_image || producto.image_url || producto.imagen || "";
     if (img) return img;
 
-    const categoriaLower = `${producto.category?.name || producto.categoria || producto.category_name || ''}`.toLowerCase();
-    if (['caliente', 'hot'].some(t => categoriaLower.includes(t))) return '../../public/img/bebidacaliente.jpg';
-    if (['fría', 'fria', 'cold', 'helada'].some(t => categoriaLower.includes(t))) return '../../public/img/bebidafria.jpg';
-    return '../../public/img/postre.jpg';
-  }
+    const categoriaLower =
+      `${producto.category?.name || producto.categoria || producto.category_name || ""}`.toLowerCase();
+    if (["caliente", "hot"].some((t) => categoriaLower.includes(t)))
+      return "../../public/img/bebidacaliente.jpg";
+    if (
+      ["fría", "fria", "cold", "helada"].some((t) => categoriaLower.includes(t))
+    )
+      return "../../public/img/bebidafria.jpg";
+    return "../../public/img/postre.jpg";
+  },
 };
 
 // ====== CAPA DE PRESENTACIÓN ======
 // Renderiza los elementos en el DOM
 const CartUIRenderer = {
-
-
   getCategoriaImagen(nombre) {
-    const nombreLower = String(nombre || '').toLowerCase();
-    if (['caliente', 'hot'].some(t => nombreLower.includes(t))) return '../../public/img/bebidacaliente.jpg';
-    if (['fría', 'fria', 'cold', 'helada'].some(t => nombreLower.includes(t))) return '../../public/img/bebidafria.jpg';
-    return '../../public/img/postre.jpg';
+    const nombreLower = String(nombre || "").toLowerCase();
+    if (["caliente", "hot"].some((t) => nombreLower.includes(t)))
+      return "../../public/img/bebidacaliente.jpg";
+    if (["fría", "fria", "cold", "helada"].some((t) => nombreLower.includes(t)))
+      return "../../public/img/bebidafria.jpg";
+    return "../../public/img/postre.jpg";
   },
 
   getContainerIds(categorias) {
     if (Array.isArray(categorias) && categorias.length) {
-      return categorias.map(categoria => `categoriaContainer-${categoria.id ?? String(categoria.name || '').toLowerCase().replace(/\s+/g, '-')}`);
+      return categorias.map(
+        (categoria) =>
+          `categoriaContainer-${
+            categoria.id ??
+            String(categoria.name || "")
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+          }`,
+      );
     }
 
-    return ['calientesContainer', 'friasContainer', 'postresContainer'];
+    return ["calientesContainer", "friasContainer", "postresContainer"];
   },
 
   renderCategorias(categorias) {
-    const menu = document.getElementById('categorias-menu');
-    const modalsContainer = document.getElementById('categoriaModalsContainer');
+    const menu = document.getElementById("categorias-menu");
+    const modalsContainer = document.getElementById("categoriaModalsContainer");
     if (!menu || !modalsContainer) return;
 
-    const categoriasList = Array.isArray(categorias) && categorias.length ? categorias : [
-      { id: 'calientes', name: 'Bebidas Calientes', image: '../../public/img/bebidacaliente.jpg' },
-      { id: 'frias', name: 'Bebidas Frías', image: '../../public/img/bebidafria.jpg' },
-      { id: 'postres', name: 'Postres', image: '../../public/img/postre.jpg' }
-    ];
+    const categoriasList =
+      Array.isArray(categorias) && categorias.length
+        ? categorias
+        : [
+            {
+              id: "calientes",
+              name: "Bebidas Calientes",
+              image: "../../public/img/bebidacaliente.jpg",
+            },
+            {
+              id: "frias",
+              name: "Bebidas Frías",
+              image: "../../public/img/bebidafria.jpg",
+            },
+            {
+              id: "postres",
+              name: "Postres",
+              image: "../../public/img/postre.jpg",
+            },
+          ];
 
-    menu.innerHTML = categoriasList.map((categoria) => {
-      const modalId = `categoriaModal-${categoria.id ?? String(categoria.name || '').toLowerCase().replace(/\s+/g, '-')}`;
-      return `
+    menu.innerHTML = categoriasList
+      .map((categoria) => {
+        const modalId = `categoriaModal-${
+          categoria.id ??
+          String(categoria.name || "")
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+        }`;
+        return `
         <div class="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch">
           <button type="button" class="btn btn-link p-0 w-100 h-100 category-card open-custom-modal text-start" data-target="${modalId}">
-            <img src="${categoria.image || this.getCategoriaImagen(categoria.name)}" alt="${categoria.name || 'Categoría'}" class="card-img" />
+            <img src="${categoria.url_image || this.getCategoriaImagen(categoria.name)}" alt="${categoria.name || "Categoría"}" class="card-img" />
             <div class="card-img-overlay d-flex align-items-center justify-content-center p-0">
               <div class="category-card-text text-center px-3 py-2">
-                <h5 class="card-title mb-0">${categoria.name || 'Categoría'}</h5>
+                <h5 class="card-title mb-0">${categoria.name || "Categoría"}</h5>
               </div>
             </div>
           </button>
         </div>`;
-    }).join('');
+      })
+      .join("");
 
-    modalsContainer.innerHTML = categoriasList.map(categoria => {
-      const modalId = `categoriaModal-${categoria.id ?? String(categoria.name || '').toLowerCase().replace(/\s+/g, '-')}`;
-      const containerId = `categoriaContainer-${categoria.id ?? String(categoria.name || '').toLowerCase().replace(/\s+/g, '-')}`;
-      return `
+    modalsContainer.innerHTML = categoriasList
+      .map((categoria) => {
+        const modalId = `categoriaModal-${
+          categoria.id ??
+          String(categoria.name || "")
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+        }`;
+        const containerId = `categoriaContainer-${
+          categoria.id ??
+          String(categoria.name || "")
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+        }`;
+        return `
         <div id="${modalId}" class="custom-modal">
           <div class="custom-modal-header">
-            <h3>${categoria.name || 'Categoría'}</h3>
+            <h3>${categoria.name || "Categoría"}</h3>
             <button class="close-modal">&times;</button>
           </div>
           <div class="custom-modal-body">
             <div class="products-grid" id="${containerId}"></div>
           </div>
         </div>`;
-    }).join('');
+      })
+      .join("");
   },
 
   renderPlaceholders(categorias) {
-    this.getContainerIds(categorias).forEach(id => {
+    this.getContainerIds(categorias).forEach((id) => {
       MainController.renderPlaceholderCards(document.getElementById(id), 3);
     });
   },
 
   renderError(categorias) {
-    this.getContainerIds(categorias).forEach(id => {
+    this.getContainerIds(categorias).forEach((id) => {
       const container = document.getElementById(id);
       if (!container) return;
       container.innerHTML = `
@@ -226,15 +280,16 @@ const CartUIRenderer = {
     const containerIds = this.getContainerIds(categorias);
     const grupos = this.agruparProductosPorCategoria(productos, categorias);
 
-    containerIds.forEach(id => {
+    containerIds.forEach((id) => {
       const container = document.getElementById(id);
       if (!container) return;
 
       const items = grupos[id] || [];
       if (items.length === 0) {
-        container.innerHTML = '<div class="empty-state">No hay productos disponibles en esta categoría.</div>';
+        container.innerHTML =
+          '<div class="empty-state">No hay productos disponibles en esta categoría.</div>';
       } else {
-        container.innerHTML = items.map(p => this.productCard(p)).join('');
+        container.innerHTML = items.map((p) => this.productCard(p)).join("");
       }
     });
 
@@ -244,28 +299,41 @@ const CartUIRenderer = {
   agruparProductosPorCategoria(productos, categorias) {
     const grupos = {};
     const containerIds = this.getContainerIds(categorias);
-    containerIds.forEach(id => { grupos[id] = []; });
+    containerIds.forEach((id) => {
+      grupos[id] = [];
+    });
 
     if (Array.isArray(categorias) && categorias.length) {
-      const categoriasNormalizadas = categorias.map(cat => ({
-        id: cat.id  || '',
-        name: cat.name || '',
-        raw: cat
+      const categoriasNormalizadas = categorias.map((cat) => ({
+        id: cat.id || "",
+        name: cat.name || "",
+        raw: cat,
       }));
 
-      productos.forEach(producto => {
-        const productCatId = producto.category?.id ?? producto.category_id ?? producto.categoryId ?? '';
-        const productCatName = producto.category?.name ?? producto.category_name ?? producto.categoria ?? '';
+      productos.forEach((producto) => {
+        const productCatId =
+          producto.category?.id ??
+          producto.category_id ??
+          producto.categoryId ??
+          "";
+        const productCatName =
+          producto.category?.name ??
+          producto.category_name ??
+          producto.categoria ??
+          "";
 
-        const matched = categoriasNormalizadas.find(cat =>
-          (cat.id && cat.id == productCatId) ||
-          (cat.name && cat.name == productCatName) ||
-          (cat.name && productCatName.includes(cat.name)) ||
-          (cat.name && cat.name.includes(productCatName))
+        const matched = categoriasNormalizadas.find(
+          (cat) =>
+            (cat.id && cat.id == productCatId) ||
+            (cat.name && cat.name == productCatName) ||
+            (cat.name && productCatName.includes(cat.name)) ||
+            (cat.name && cat.name.includes(productCatName)),
         );
 
         if (matched) {
-          grupos[`categoriaContainer-${matched.raw.id ?? matched.raw.name.toLowerCase().replace(/\s+/g, '-')}`]?.push(producto);
+          grupos[
+            `categoriaContainer-${matched.raw.id ?? matched.raw.name.toLowerCase().replace(/\s+/g, "-")}`
+          ]?.push(producto);
           return;
         }
 
@@ -276,36 +344,52 @@ const CartUIRenderer = {
       return grupos;
     }
 
-    grupos.calientesContainer = productos.filter(p => this.esCategoria(p, ['caliente', 'hot']));
-    grupos.friasContainer = productos.filter(p => this.esCategoria(p, ['fría', 'fria', 'cold', 'helada']));
-    grupos.postresContainer = productos.filter(p => this.esCategoria(p, ['postre', 'dessert']));
+    grupos.calientesContainer = productos.filter((p) =>
+      this.esCategoria(p, ["caliente", "hot"]),
+    );
+    grupos.friasContainer = productos.filter((p) =>
+      this.esCategoria(p, ["fría", "fria", "cold", "helada"]),
+    );
+    grupos.postresContainer = productos.filter((p) =>
+      this.esCategoria(p, ["postre", "dessert"]),
+    );
 
-    const yaAgrupados = new Set([
-      ...grupos.calientesContainer,
-      ...grupos.friasContainer,
-      ...grupos.postresContainer
-    ].map(p => p.id));
+    const yaAgrupados = new Set(
+      [
+        ...grupos.calientesContainer,
+        ...grupos.friasContainer,
+        ...grupos.postresContainer,
+      ].map((p) => p.id),
+    );
 
-    const sinGrupo = productos.filter(p => !yaAgrupados.has(p.id));
+    const sinGrupo = productos.filter((p) => !yaAgrupados.has(p.id));
     grupos.postresContainer = [...grupos.postresContainer, ...sinGrupo];
 
     return grupos;
   },
 
   obtenerContenedorFallback(producto, categorias) {
-    const categoria = String(producto.category?.name ?? producto.category_name ?? producto.categoria ?? '').toLowerCase();
+    const categoria = String(
+      producto.category?.name ??
+        producto.category_name ??
+        producto.categoria ??
+        "",
+    ).toLowerCase();
     const ids = this.getContainerIds(categorias);
     if (!ids.length) return null;
 
-    if (['caliente', 'hot'].some(t => categoria.includes(t))) return ids[0];
-    if (['fría', 'fria', 'cold', 'helada'].some(t => categoria.includes(t))) return ids[1] || ids[0];
-    if (['postre', 'dessert'].some(t => categoria.includes(t))) return ids[2] || ids[0];
+    if (["caliente", "hot"].some((t) => categoria.includes(t))) return ids[0];
+    if (["fría", "fria", "cold", "helada"].some((t) => categoria.includes(t)))
+      return ids[1] || ids[0];
+    if (["postre", "dessert"].some((t) => categoria.includes(t)))
+      return ids[2] || ids[0];
     return ids[0];
   },
 
   esCategoria(producto, terminos) {
-    const categoria = `${producto.category?.name || producto.categoria || producto.category_name || ''}`.toLowerCase();
-    return terminos.some(t => categoria.includes(t));
+    const categoria =
+      `${producto.category?.name || producto.categoria || producto.category_name || ""}`.toLowerCase();
+    return terminos.some((t) => categoria.includes(t));
   },
 
   productCard(producto) {
@@ -314,23 +398,23 @@ const CartUIRenderer = {
 
     return `
       <article class="product-card">
-        <img class="product-img" src="${CartService.obtenerImagenProducto(producto)}" alt="${producto.name || 'Producto'}" />
+        <img class="product-img" src="${CartService.obtenerImagenProducto(producto)}" alt="${producto.name || "Producto"}" />
         <div class="product-info">
-          <h4>${producto.name || 'Producto sin nombre'}</h4>
-          <p>${producto.description || 'Producto disponible en Xilotepec Coffee Shop.'}</p>
+          <h4>${producto.name || "Producto sin nombre"}</h4>
+          <p>${producto.description || "Producto disponible en Xilotepec Coffee Shop."}</p>
           <span class="product-price">$${Number(producto.price || 0).toFixed(2)}</span>
           <small class="text-muted">Disponibles: ${maxQuantity}</small>
-          <button class="add-cart-btn" data-id="${producto.id}" ${sinStock ? 'disabled' : ''}>
-            ${sinStock ? 'Sin stock' : 'Agregar al carrito'}
+          <button class="add-cart-btn" data-id="${producto.id}" ${sinStock ? "disabled" : ""}>
+            ${sinStock ? "Sin stock" : "Agregar al carrito"}
           </button>
         </div>
       </article>`;
   },
 
   renderCarrito() {
-    const lista = document.getElementById('carritoItems');
-    const totalSpan = document.getElementById('cartTotal');
-    const badge = document.getElementById('cartBadge');
+    const lista = document.getElementById("carritoItems");
+    const totalSpan = document.getElementById("cartTotal");
+    const badge = document.getElementById("cartBadge");
 
     if (!lista || !totalSpan) return;
 
@@ -339,9 +423,7 @@ const CartUIRenderer = {
     if (carrito.length === 0) {
       lista.innerHTML = '<li class="empty-state">Tu carrito está vacío.</li>';
     } else {
-      lista.innerHTML = carrito
-        .map(item => this.cartItemHTML(item))
-        .join('');
+      lista.innerHTML = carrito.map((item) => this.cartItemHTML(item)).join("");
     }
 
     totalSpan.textContent = CartService.obtenerTotal().toFixed(2);
@@ -355,7 +437,7 @@ const CartUIRenderer = {
         <div>
           <h4>${item.name}</h4>
           <p>$${Number(item.price).toFixed(2)} c/u</p>
-          <small class="text-muted">Máximo disponible: ${item.maxQuantity || 'N/D'}</small>
+          <small class="text-muted">Máximo disponible: ${item.maxQuantity || "N/D"}</small>
           <div class="qty-controls">
             <button onclick="CartController.cambiarCantidad('${item.id}', -1)">−</button>
             <strong>${item.quantity}</strong>
@@ -367,10 +449,12 @@ const CartUIRenderer = {
   },
 
   registrarEventosProductos() {
-    document.querySelectorAll('.add-cart-btn').forEach(btn => {
-      btn.addEventListener('click', () => CartController.agregarAlCarrito(btn.dataset.id));
+    document.querySelectorAll(".add-cart-btn").forEach((btn) => {
+      btn.addEventListener("click", () =>
+        CartController.agregarAlCarrito(btn.dataset.id),
+      );
     });
-  }
+  },
 };
 
 // ====== CONTROLADOR ======
@@ -392,9 +476,9 @@ const CartController = {
       console.error(error);
       CartUIRenderer.renderError(this.categorias);
       MainController.mostrarAlerta(
-        'No se pudieron cargar los productos desde la API. Verifica que el servidor Laravel esté activo.',
-        'danger',
-        'menu-alert-container'
+        "No se pudieron cargar los productos desde la API. Verifica que el servidor Laravel esté activo.",
+        "danger",
+        "menu-alert-container",
       );
     }
   },
@@ -402,9 +486,11 @@ const CartController = {
   async cargarCategorias() {
     try {
       const categoriasResp = await CategoriasModel.obtenerCategorias();
-      this.categorias = Array.isArray(categoriasResp) ? categoriasResp : categoriasResp.data ?? [];
+      this.categorias = Array.isArray(categoriasResp)
+        ? categoriasResp
+        : (categoriasResp.data ?? []);
     } catch (error) {
-      console.warn('No se pudieron cargar las categorías:', error);
+      console.warn("No se pudieron cargar las categorías:", error);
       this.categorias = [];
     }
 
@@ -412,64 +498,83 @@ const CartController = {
   },
 
   registrarEventosUI() {
-    const overlay = document.getElementById('general-overlay');
+    const overlay = document.getElementById("general-overlay");
 
-    document.getElementById('cartToggleBtn')?.addEventListener('click', () => this.abrirCarrito());
-    document.getElementById('cerrarCarrito')?.addEventListener('click', () => this.cerrarTodo());
-    document.getElementById('limpiarBtn')?.addEventListener('click', () => this.limpiarCarrito());
-    document.getElementById('finalizarCompraBtn')?.addEventListener('click', () => this.finalizarCompra());
+    document
+      .getElementById("cartToggleBtn")
+      ?.addEventListener("click", () => this.abrirCarrito());
+    document
+      .getElementById("cerrarCarrito")
+      ?.addEventListener("click", () => this.cerrarTodo());
+    document
+      .getElementById("limpiarBtn")
+      ?.addEventListener("click", () => this.limpiarCarrito());
+    document
+      .getElementById("finalizarCompraBtn")
+      ?.addEventListener("click", () => this.finalizarCompra());
 
-    document.querySelectorAll('.open-custom-modal').forEach(btn => {
-      btn.addEventListener('click', () => this.abrirModal(btn.dataset.target));
+    document.querySelectorAll(".open-custom-modal").forEach((btn) => {
+      btn.addEventListener("click", () => this.abrirModal(btn.dataset.target));
     });
 
-    document.querySelectorAll('.close-modal').forEach(btn => {
-      btn.addEventListener('click', () => this.cerrarTodo());
+    document.querySelectorAll(".close-modal").forEach((btn) => {
+      btn.addEventListener("click", () => this.cerrarTodo());
     });
 
-    overlay?.addEventListener('click', () => this.cerrarTodo());
+    overlay?.addEventListener("click", () => this.cerrarTodo());
   },
 
   abrirModal(id) {
     this.cerrarTodo(false);
-    document.getElementById('general-overlay')?.classList.add('active');
-    document.getElementById(id)?.classList.add('active');
+    document.getElementById("general-overlay")?.classList.add("active");
+    document.getElementById(id)?.classList.add("active");
   },
 
   abrirCarrito() {
-    document.getElementById('general-overlay')?.classList.add('active');
-    document.getElementById('shopping-cart')?.classList.add('active');
+    document.getElementById("general-overlay")?.classList.add("active");
+    document.getElementById("shopping-cart")?.classList.add("active");
   },
 
   cerrarTodo(overlay = true) {
-    document.querySelectorAll('.custom-modal').forEach(m => m.classList.remove('active'));
-    document.getElementById('shopping-cart')?.classList.remove('active');
-    if (overlay) document.getElementById('general-overlay')?.classList.remove('active');
+    document
+      .querySelectorAll(".custom-modal")
+      .forEach((m) => m.classList.remove("active"));
+    document.getElementById("shopping-cart")?.classList.remove("active");
+    if (overlay)
+      document.getElementById("general-overlay")?.classList.remove("active");
   },
 
   agregarAlCarrito(id) {
-    const producto = this.productos.find(p => String(p.id) === String(id));
+    const producto = this.productos.find((p) => String(p.id) === String(id));
     if (!producto) {
-      MainController.mostrarAlerta('No se encontró el producto seleccionado.', 'warning', 'menu-alert-container');
+      MainController.mostrarAlerta(
+        "No se encontró el producto seleccionado.",
+        "warning",
+        "menu-alert-container",
+      );
       return;
     }
 
     const button = document.querySelector(`.add-cart-btn[data-id="${id}"]`);
-    MainController.setButtonLoading(button, true, 'Agregando...');
+    MainController.setButtonLoading(button, true, "Agregando...");
 
     const resultado = CartService.agregarItem(producto);
     CartUIRenderer.renderCarrito();
     MainController.setButtonLoading(button, false);
 
     if (!resultado.ok) {
-      MainController.mostrarAlerta(resultado.mensaje, 'warning', 'menu-alert-container');
+      MainController.mostrarAlerta(
+        resultado.mensaje,
+        "warning",
+        "menu-alert-container",
+      );
       return;
     }
 
     MainController.mostrarAlerta(
-      `<strong>${producto.name || 'Producto'}</strong> fue agregado al carrito.`,
-      'success',
-      'menu-alert-container'
+      `<strong>${producto.name || "Producto"}</strong> fue agregado al carrito.`,
+      "success",
+      "menu-alert-container",
     );
   },
 
@@ -478,43 +583,67 @@ const CartController = {
     CartUIRenderer.renderCarrito();
 
     if (resultado && !resultado.ok) {
-      MainController.mostrarAlerta(resultado.mensaje, 'warning', 'menu-alert-container');
+      MainController.mostrarAlerta(
+        resultado.mensaje,
+        "warning",
+        "menu-alert-container",
+      );
       return;
     }
 
     if (resultado?.eliminado) {
-      MainController.mostrarAlerta('Producto eliminado del carrito.', 'info', 'menu-alert-container');
+      MainController.mostrarAlerta(
+        "Producto eliminado del carrito.",
+        "info",
+        "menu-alert-container",
+      );
     }
   },
 
   eliminarItem(id) {
     CartService.eliminarItem(id);
     CartUIRenderer.renderCarrito();
-    MainController.mostrarAlerta('Producto eliminado del carrito.', 'info', 'menu-alert-container');
+    MainController.mostrarAlerta(
+      "Producto eliminado del carrito.",
+      "info",
+      "menu-alert-container",
+    );
   },
 
   limpiarCarrito() {
     if (CartService.estaVacio()) {
-      MainController.mostrarAlerta('El carrito ya está vacío.', 'info', 'menu-alert-container');
+      MainController.mostrarAlerta(
+        "El carrito ya está vacío.",
+        "info",
+        "menu-alert-container",
+      );
       return;
     }
 
     CartService.limpiar();
     CartUIRenderer.renderCarrito();
-    MainController.mostrarAlerta('El carrito fue limpiado correctamente.', 'success', 'menu-alert-container');
+    MainController.mostrarAlerta(
+      "El carrito fue limpiado correctamente.",
+      "success",
+      "menu-alert-container",
+    );
   },
 
   finalizarCompra() {
     if (CartService.estaVacio()) {
-      MainController.mostrarAlerta('Agrega productos antes de finalizar la compra.', 'warning', 'menu-alert-container');
+      MainController.mostrarAlerta(
+        "Agrega productos antes de finalizar la compra.",
+        "warning",
+        "menu-alert-container",
+      );
       return;
     }
-    window.location.href = 'total.php';
-  }
+    window.location.href = "total.php";
+  },
 };
 
 window.CartController = CartController;
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   MainController.init();
   CartController.init();
 });
