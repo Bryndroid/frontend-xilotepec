@@ -10,7 +10,7 @@ $assetBase = '../';
   <title><?= $pageTitle ?></title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="icon" href="<?= $assetBase ?>public/img/logo.png" type="image/png">
+  <link rel="icon" href="<?= $assetBase ?>public/images/logo.png" type="image/png">
 </head>
 <body class="bg-light">
 
@@ -19,7 +19,7 @@ $assetBase = '../';
       <div class="card-body">
 
         <img 
-          src="<?= $assetBase ?>public/img/logo.png" 
+          src="<?= $assetBase ?>public/images/logo.png" 
           alt="Logo Xilotepec" 
           class="img-fluid mb-3"
           style="width: 80px;"

@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="alert alert-danger" role="alert"><?php echo htmlspecialchars($error); ?></div>
                     <?php endif; ?>
 
-                    <form method="POST">
+                    <form method="POST" id='registerForm'>
                         <div class="mb-3">
                             <input type="text" class="form-control" name="nombre" placeholder="Nombre" value="<?php echo htmlspecialchars($name); ?>" />
                         </div>
@@ -80,18 +80,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="password" class="form-control" name="contrasena" placeholder="Contraseña" />
                         </div>
                         <div class="d-grid gap-3">
-                            <button type="submit" class="btn btn-buttons">Crear cuenta</button>
-                            <a href="./config/google-callback.php" class="btn btn-buttons">
+                            <button id='btnRegister' type="submit" class="btn btn-buttons">Crear cuenta</button>
+                            <a id='btnGoogleRegister'href="./config/google-callback.php" class="btn btn-buttons">
                                 <i class="bi bi-google"></i> Registrarse con Google
                             </a>
                         </div>
                     </form>
                     <p>¿Ya tenías una cuenta? <a href="login.php">¡Inicia sesión!</a></p>
+                    <a href="index.php" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                            <i class="bi bi-arrow-left"></i> Volver al inicio
+                        </a>
                 </div>
             </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script>
+        const setLoading = (element, text) => {
+            if (!element) return;
+
+            element.dataset.originalHtml = element.innerHTML;
+
+            element.classList.add('is-loading');
+            element.setAttribute('aria-disabled', 'true');
+            element.style.pointerEvents = 'none';
+            element.style.opacity = '1';
+
+            if ('disabled' in element) {
+                element.disabled = true;
+                element.style.opacity = '1';
+            }
+
+            element.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                ${text}
+            `;
+        };
+
+        document.getElementById('registerForm')?.addEventListener('submit', () => {
+            setLoading(document.getElementById('btnRegister'), 'Creando cuenta...');
+        });
+
+        document.getElementById('btnGoogleRegister')?.addEventListener('click', (event) => {
+            setLoading(event.currentTarget, 'Conectando con Google...');
+        });
+    </script>
 </body>
 
 </html>

@@ -9,42 +9,48 @@ const PromocionesController = {
 
     init: async () => {
         PromocionesController.productosListados = [];
-        await PromocionesController.cargarDatos();
+        try{
+            await PromocionesController.cargarDatos();
         
-        document.getElementById('input-search-promos')?.addEventListener('input', PromocionesController.renderizarTabla);
-        document.getElementById('filter-promo-status')?.addEventListener('input', PromocionesController.renderizarTabla);
-        document.getElementById('btn-nueva-promo')?.addEventListener('click', PromocionesController.prepararCrear);
-        
-        document.getElementById('btn-upload-img')?.addEventListener('click', () => {
-            document.getElementById('input_promo_file').click();
-        });
+            document.getElementById('input-search-promos')?.addEventListener('input', PromocionesController.renderizarTabla);
+            document.getElementById('filter-promo-status')?.addEventListener('input', PromocionesController.renderizarTabla);
+            document.getElementById('btn-nueva-promo')?.addEventListener('click', PromocionesController.prepararCrear);
+            
+            document.getElementById('btn-upload-img')?.addEventListener('click', () => {
+                document.getElementById('input_promo_file').click();
+            });
 
-        // Solución al Select: Escuchamos el clic directo en las opciones
-        document.querySelector('#select-promo-product')?.addEventListener('click', (e) => {
-            if (e.target.tagName === 'OPTION') {
-                const producto = PromocionesController.productos.find(p => p.id == e.target.value);
-                if (producto) {
-                    PromocionesController.listarProducto(producto);
+            // Solución al Select: Escuchamos el clic directo en las opciones
+            document.querySelector('#select-promo-product')?.addEventListener('click', (e) => {
+                if (e.target.tagName === 'OPTION') {
+                    const producto = PromocionesController.productos.find(p => p.id == e.target.value);
+                    if (producto) {
+                        PromocionesController.listarProducto(producto);
+                    }
+
+                    // Forzamos visualmente que el select mantenga sombreados los que están en la lista (evita que el click normal borre el resto visualmente)
+                    Array.from(e.currentTarget.options).forEach(opt => {
+                        opt.selected = PromocionesController.productosListados.some(p => p.id == opt.value);
+                    });
                 }
+            });
 
-                // Forzamos visualmente que el select mantenga sombreados los que están en la lista (evita que el click normal borre el resto visualmente)
-                Array.from(e.currentTarget.options).forEach(opt => {
-                    opt.selected = PromocionesController.productosListados.some(p => p.id == opt.value);
-                });
-            }
-        });
-
-        document.getElementById('form-gestion-promo')?.addEventListener('submit', PromocionesController.guardarPromocion);
+            document.getElementById('form-gestion-promo')?.addEventListener('submit', PromocionesController.guardarPromocion);
+        }catch(error){
+            PromocionesController.mostrarAlerta('Hubo un error inesperado con la respuesta del servidor', 'danger', false);
+            document.querySelector('#table-head-status').innerHTML = ``
+            console.error(error);
+        }
     },
     cargarDatos: async ()=>{
         const promosResp = await PromocionesModel.obtenerPromociones();
         if (promosResp.status === false) {
-            return PromocionesController.mostrarModalError(promosResp.message || 'Error al cargar promociones');
+            return PromocionesController.mostrarModalError( 'Error al cargar promociones');
         }
 
         const productosResp = await MenuModel.obtenerProductos();
         if (productosResp.status === false) {
-            return PromocionesController.mostrarModalError(productosResp.message || 'Error al cargar productos');
+            return PromocionesController.mostrarModalError( 'Error al cargar productos');
         }
 
         PromocionesController.datosPromos = promosResp.data ?? promosResp;

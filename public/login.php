@@ -3,16 +3,42 @@ require_once __DIR__.'/../helpers/sessionHandler.php';
 require_once __DIR__.'/../config/config.php';
 AppSessionHandler::iniciarSesionSegura();
 
+
 if (isset($_GET['logout'])) {
     $_SESSION = [];
-    if (ini_get('session.use_cookies')) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
-    }
-    setcookie('jwt_token', '', time() - 42000, '/');
-    header('Location: ../public/login.php');
+    $token = $_COOKIE['jwt_token'] ?? null;
+    if($token){
+        $ch = curl_init('http://127.0.0.1:8000/api/logout');
+        curl_setopt_array($ch, [
+            CURLOPT_HTTPGET => true,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $token
+            ],
+            CURLOPT_RETURNTRANSFER => true
+        ]);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+        }
+        setcookie('jwt_token', '', time() - 42000, '/');
+        header('Location: ../public/login.php');
     exit;
+    }
 }
+
+if(isset($_SESSION['user']) &&  isset($_SESSION['token'])){
+    if($_SESSION['user']['role'] == 'admin'){
+        header('Location: ../views/admin/index.php');
+        exit;
+    }
+    header('Location: ../views/cliente/menu.php');
+}
+
+
+
 
 $error = '';
 $email = '';
@@ -58,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: ../views/cliente/menu.php');
             exit;
         } else {
-            $error = $data['message'] ?? 'Credenciales inválidas';
+            $error = $data['mensaje'] ?? 'Credenciales inválidas';
         }
     }
 }
@@ -84,13 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="img-overlay login-overlay"></div>
                 </div>
                 <div class="col-md-6 col-12 formulario">
-                    <h3 class="fw-bold mb-4">¡Hola de Nuevo!</h3>
+                    <h3 class="fw-bold mb-2 text-uppercase login-title">¡Hola de Nuevo!</h3>
                     
                     <?php if ($error): ?>
-                        <div class="alert alert-danger" role="alert"><?php echo htmlspecialchars($error); ?></div>
+                        <div class="alert alert-danger" role="alert">
+                            <?php echo htmlspecialchars($error); ?>
+                        </div>
                     <?php endif; ?>
 
-                    <form method="POST">
+                    <form method="POST"  id="loginForm">
                         <div class="mb-3">
                             <input type="email" class="form-control" name="email" placeholder="Correo" value="<?php echo htmlspecialchars($email); ?>" />
                         </div>
@@ -98,18 +126,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="password" class="form-control" name="password" placeholder="Contraseña"  />
                         </div>
                         <div class="d-grid gap-3">
-                            <button type="submit" class="btn btn-buttons">Ingresar</button>
-                            <a href="./../helpers/google-callback.php" class="btn btn-buttons">
+                            <button id = 'btnLogin' type="submit" class="btn btn-buttons">Ingresar</button>
+                            <a id = 'btnGoogleLogin'href="./../helpers/google-callback.php" class="btn btn-buttons">
                                 <i class="bi bi-google"></i> Ingresar con Google
                             </a>
                         </div>
                     </form>
                     <p>¿Aún no tienes una cuenta? <a href="register.php">¡Regístrate!</a></p>
+                    <a href="index.php" class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                            <i class="bi bi-arrow-left"></i> Volver al inicio
+                        </a>
                 </div>
             </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
-    <script src="./config/main.js" defer></script>
+     <script>
+        const setLoading = (element, text) => {
+            if (!element) return;
+
+            element.dataset.originalHtml = element.innerHTML;
+
+            element.classList.add('is-loading');
+            element.setAttribute('aria-disabled', 'true');
+            element.style.pointerEvents = 'none';
+            element.style.opacity = '1';
+
+            if ('disabled' in element) {
+                element.disabled = true;
+                element.style.opacity = '1';
+            }
+
+            element.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                ${text}
+            `;
+        };
+
+        document.getElementById('loginForm')?.addEventListener('submit', () => {
+            setLoading(document.getElementById('btnLogin'), 'Ingresando...');
+        });
+
+        document.getElementById('btnGoogleLogin')?.addEventListener('click', (event) => {
+            setLoading(event.currentTarget, 'Conectando con Google...');
+        });
+    </script>
 </body>
 </html>

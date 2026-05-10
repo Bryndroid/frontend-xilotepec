@@ -386,12 +386,12 @@ const TotalController = {
 
   descargarPDF() {
     const element = document.getElementById('tabla');
-
+    const button = document.getElementById('btnPDF');
     if (!element || TotalService.estaVacio()) {
       MainController.mostrarAlerta('No hay productos para generar el recibo.', 'warning', 'checkout-alert-container');
       return;
     }
-
+    MainController.setButtonLoading(button, true, 'Descargando recibo...');
     const opt = {
       margin: 0.5,
       filename: 'xilotepec-recibo.pdf',
@@ -400,7 +400,18 @@ const TotalController = {
       jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(element).save();
+     html2pdf()
+      .set(opt)
+      .from(element)
+      .save()
+      .then(() => {
+        MainController.setButtonLoading(button, false);
+      })
+      .catch((error) => {
+        console.error('Error al generar el recibo:', error);
+        MainController.mostrarAlerta('No se pudo generar el recibo.', 'danger', 'checkout-alert-container');
+        MainController.setButtonLoading(button, false);
+      });
   },
 
   enviarComentario(event) {

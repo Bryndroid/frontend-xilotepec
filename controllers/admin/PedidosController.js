@@ -14,7 +14,9 @@ const PedidosController = {
             document.getElementById('input-search-pedidos')?.addEventListener('input', PedidosController.renderizarTabla);
             document.getElementById('filter-pedido-status')?.addEventListener('change', PedidosController.renderizarTabla);
         } catch (error) {
-            PedidosController.mostrarModalError(error.message || 'Error al cargar pedidos');
+            PedidosController.mostrarAlerta('Hubo un error inesperado con la respuesta del servidor', 'danger', false);
+            document.querySelector('#table-head-status').innerHTML = ``
+            console.error(error);
         }
     },
 

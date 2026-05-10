@@ -28,16 +28,16 @@ const DashboardController = {
             ]);
 
             if (dashboard.status === false) {
-                throw new Error(dashboard.message || 'Error al cargar métricas');
+                throw new Error( 'Error al cargar métricas');
             }
             if (orders.status === false) {
-                throw new Error(orders.message || 'Error al cargar pedidos');
+                throw new Error('Error al cargar pedidos');
             }
             if (promociones.status === false) {
-                throw new Error(promociones.message || 'Error al cargar promociones');
+                throw new Error( 'Error al cargar promociones');
             }
             if (fiveOrders.status === false) {
-                throw new Error(fiveOrders.message || 'Error al cargar pedidos recientes');
+                throw new Error( 'Error al cargar pedidos recientes');
             }
 
             DashboardController.loadSummary(dashboard.data.summary);
@@ -73,7 +73,7 @@ const DashboardController = {
                 DashboardController.cerrarSesion();
             });
         } catch (error) {
-            DashboardController.mostrarModalError(error.message || 'Error al cargar dashboard');
+            DashboardController.mostrarModalError( 'Error al cargar dashboard');
         } finally {
             DashboardController.onStart();
         }
@@ -296,7 +296,7 @@ const DashboardController = {
        });
        const metrics = await peticion.json();
        if (!peticion.ok) {
-           return { status: false, message: metrics.message || 'Error al cargar métricas', data: metrics };
+           return { status: false, message:  'Error al cargar métricas', data: metrics };
        }
        return metrics;
     },
@@ -311,7 +311,7 @@ const DashboardController = {
         });
         const orders = await peticion.json();
         if (!peticion.ok) {
-            return { status: false, message: orders.message || 'Error al cargar pedidos', data: orders };
+            return { status: false, message:  'Error al cargar pedidos', data: orders };
         }
         return orders;
     },
@@ -319,7 +319,7 @@ const DashboardController = {
         document.querySelector('#today-revenue-container').innerHTML = '$ ' + parseFloat(summary.total_revenue).toFixed(2);
         document.querySelector('#today-order-container').innerHTML = summary.orders_count;
         document.querySelector('#today-order-active').innerHTML = summary.orders_active;
-        document.querySelector('#today-order-inactive').innerHTML = parseInt(summary.orders_count) - parseInt(summary.orders_active);
+        document.querySelector('#today-order-inactive').innerHTML = summary.orders_pendiente;
     },
     loadPromotion: (promociones)=>{
       
@@ -382,9 +382,10 @@ const DashboardController = {
     },
     cerrarSesion: async ()=>{
         const respuesta = await UsuariosModel.deslogearUsuario();
+        alert('ola');
         if(respuesta.status){
             alert('Deslogeo con exito. Navegando a login...');
-            location.href = '/admin/public/login.php';
+            location.href = '../../public/login.php?logout=1';
         }
     }
 };

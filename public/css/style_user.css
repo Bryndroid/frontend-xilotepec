@@ -278,6 +278,16 @@ textarea.form-control { border-radius: var(--radius-sm); }
   background: transparent;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
+.alert-xilo {
+  background: rgba(157, 172, 153, 0.18) !important;
+  border: 1px solid rgba(157, 172, 153, 0.45) !important;
+  color: var(--primary-dark) !important;
+}
+
+.alert-xilo .text-muted,
+.alert-xilo p {
+  color: #4f5d4d !important;
+}
 .category-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);

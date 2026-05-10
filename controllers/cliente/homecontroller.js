@@ -5,8 +5,19 @@ import { MainController } from './maincontroller.js';
 const HomeDataService = {
   async cargarPromociones() {
     try {
-      const promociones = await PromocionesModel.obtenerPromociones();
-      return Array.isArray(promociones) ? promociones : [];
+      const respuesta = await PromocionesModel.obtenerPromocionesActivas();
+      const promociones = Array.isArray(respuesta)
+        ? respuesta
+        : Array.isArray(respuesta.data)
+          ? respuesta.data
+          : [];
+
+      return promociones.filter((promo) =>
+        promo.is_active === true ||
+        promo.is_active === 1 ||
+        promo.is_active === 'true' ||
+        promo.is_active === '1'
+      );
     } catch (error) {
       console.error('Error al cargar promociones:', error);
       throw error;

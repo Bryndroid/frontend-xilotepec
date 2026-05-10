@@ -15,3 +15,21 @@ $assetBase = $assetBase ?? '../../'; ?>
     </ul>
   </nav>
 </header>
+<script>
+  const setLogoutLoading = (element, text) => {
+    if (!element) return;
+
+    element.dataset.originalHtml = element.innerHTML;
+    element.classList.add('disabled');
+    element.setAttribute('aria-disabled', 'true');
+    element.style.pointerEvents = 'none';
+
+    element.innerHTML = `
+      <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>${text}
+    `;
+  };
+
+  document.getElementById('btn-logout')?.addEventListener('click', (event) => {
+    setLogoutLoading(event.currentTarget, 'Cerrando sesión...');
+  });
+</script>

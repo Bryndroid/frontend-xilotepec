@@ -5,24 +5,30 @@ const MenuController = {
     productos: [],
     categorias: [],
     init: async () => {
-        await MenuController.cargarDatos();
-        document.getElementById('input-search-menu')?.addEventListener('input', MenuController.render);
-        document.getElementById('filter-category')?.addEventListener('change', MenuController.render);
-        document.getElementById('btn-nuevo-producto')?.addEventListener('click', MenuController.abrirNuevo);
-        document.getElementById('btn-upload-prod')?.addEventListener('click', () => {
-            document.getElementById('input_prod_file').click();
-        });
-        document.getElementById('input_prod_file')?.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    document.getElementById('modal_prod_img').src = ev.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-        document.getElementById('form-producto').addEventListener('submit', MenuController.guardarProducto);
+        try{
+            await MenuController.cargarDatos();
+            document.getElementById('input-search-menu')?.addEventListener('input', MenuController.render);
+            document.getElementById('filter-category')?.addEventListener('change', MenuController.render);
+            document.getElementById('btn-nuevo-producto')?.addEventListener('click', MenuController.abrirNuevo);
+            document.getElementById('btn-upload-prod')?.addEventListener('click', () => {
+                document.getElementById('input_prod_file').click();
+            });
+            document.getElementById('input_prod_file')?.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        document.getElementById('modal_prod_img').src = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            document.getElementById('form-producto').addEventListener('submit', MenuController.guardarProducto);
+        }catch(error){
+            MenuController.mostrarAlerta('Hubo un error inesperado con la respuesta del servidor', 'danger', false);
+            document.querySelector('#table-head-status').innerHTML = ``
+            console.error(error);
+        }
         
     },
 
@@ -61,12 +67,12 @@ const MenuController = {
     cargarDatos: async () => {
         const productosResp = await MenuModel.obtenerProductos();
         if (productosResp.status === false) {
-            return MenuController.mostrarModalError(productosResp.message || 'Error al cargar productos');
+            throw new Error('Error al cargar productos');
         }
 
         const categoriasResp = await CategoriasModel.obtenerCategorias();
         if (categoriasResp.status === false) {
-            return MenuController.mostrarModalError(categoriasResp.message || 'Error al cargar categorías');
+            throw new Error('Error al cargar categorias');
         }
 
         MenuController.productos = productosResp.data ?? productosResp;
