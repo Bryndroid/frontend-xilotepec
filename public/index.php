@@ -66,11 +66,16 @@
 
             <h2>Nosotros te traemos el café, ¡de la finca a tu casa!</h2>
             <div class="bento">
-                <article class="box" style="grid-area: box-1"><img src="../img/1.jpg" alt="Café Xilotepec" /></article>
-                <article class="box" style="grid-area: box-2"><img src="../img/2.jpg" alt="Café Xilotepec" /></article>
-                <article class="box" style="grid-area: box-3"><img src="../img/3.jpg" alt="Café Xilotepec" /></article>
-                <article class="box" style="grid-area: box-4"><img src="../img/4.jpg" alt="Café Xilotepec" /></article>
-                <article class="box" style="grid-area: box-5"><img src="../img/5.jpg" alt="Café Xilotepec" /></article>
+                <article class="box" style="grid-area: box-1"><img src="./images/1.jpg" alt="Café Xilotepec" />
+                </article>
+                <article class="box" style="grid-area: box-2"><img src="./images/2.jpg" alt="Café Xilotepec" />
+                </article>
+                <article class="box" style="grid-area: box-3"><img src="./images/3.jpg" alt="Café Xilotepec" />
+                </article>
+                <article class="box" style="grid-area: box-4"><img src="./images/4.jpg" alt="Café Xilotepec" />
+                </article>
+                <article class="box" style="grid-area: box-5"><img src="./images/5.jpg" alt="Café Xilotepec" />
+                </article>
             </div>
 
             <h2 id="promociones">Conoce nuestras promociones</h2>
